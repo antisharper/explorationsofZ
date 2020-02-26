@@ -1,0 +1,13 @@
+#!/bin/sh -e
+# NOHUP important AP Scripts
+
+OPENVPNCONFIG=`ls -1tr /home/pi/*.ovpn | head -1`
+UPDATEPORT=%UPDATEPORT%
+INTERNETTESTSITE=%CHECKURL%
+
+nohup /home/pi/run-openvpn.sh "$OPENVPNCONFIG" >/dev/shm/run-openvpn.out 2>&1 &
+nohup /home/pi/run-checkConnect.sh "" "" $INTERNETTESTSITE >/dev/shm/run-checkConnect.out 2>&1 &
+nohup /home/pi/run-ledpattern.sh >/dev/shm/run-ledpattern.out 2>&1 &
+nohup /home/pi/run-update.sh $UPDATEPORT >/dev/shm/run-update.out 2>&1 &
+nohup /home/pi/run-Button-OpenVPN.sh >/dev/shm/run-button-openvpn.out 2>&1 &
+

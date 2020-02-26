@@ -1,0 +1,29 @@
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=US
+
+#Priority higher is preferred.
+
+network={
+  ssid="%UPLINKWIFINAME%"
+  # Typical User AP WPA-PreSharedKey
+  key_mgmt=%UPLINKWIFIKEYMGMT%
+  %UPLINKWIFIHASPASSWORD%psk="%UPLINKWIFIPASSWORD%"
+  # Prefer this network over other defined networks
+  priority=95
+  id_str="%UPLINKWIFIDESCRIPTION%"
+  # Allow Nework Card to scan for this network
+  scan_ssid=1
+}
+
+# Default XFINITYWIFI slow network (1-2 mbps)
+# Network is allow by the HW MAC on the External WIRELESS Card.
+# To Setup, connect WIFI to a desktop computer and login to Xfinitywifi using this card.
+# Low Priroity cause we'd prefer to use a higher speed network.
+network={
+  ssid="xfinitywifi"
+  key_mgmt=NONE
+  priority=10
+  id_str="General Xfinitywifi - slow"
+  scan_ssid=1
+}
