@@ -416,7 +416,7 @@ build_uplink_wireless_connection() {
   UPLINKWIFICONFIGS=($(echo $(echo "${UPLINKWIFICONFIGS[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) $(echo "${UPLINKWIFICONFIGS[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u)))
 
   echo "                  UPLINK WiFi Configurations found:"
-  CNT=0; echo ${UPLINKWIFICONFIGS[@]} | sed 's/ /\n/g' | while read UPLINKWIFICONFIG; do (( CNT=CNT+1 )); echo "$CNT) $UPLINKWIFICONFIG"; done | column
+  CNT=0; echo ${UPLINKWIFICONFIGS[@]} | sed 's/ /\n/g' | while read UPLINKWIFICONFIG; do (( CNT=CNT+1 )); echo "$CNT) $(if [[ $UPLINKWIFICONFIG =~ ".*conf$" ]]; then echo "$UPLINKWIFICONFIG [CURRENT]" else echo $UPLINKWIFICONFIG; fi)"; done | column
   if [ ${#UPLINKWIFICONFIGS[@]} -ne 1 ]; then
     read -p "         Which UPLINK Wifi config version will you use? [Default:1] " INUPLINKWIFICONFIGS
   fi
@@ -452,7 +452,7 @@ build_localrouterap() {
   LOCALROUTERAPFILES=($(echo $(echo "${LOCALROUTERAPFILES[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) $(echo "${LOCALROUTERAPFILES[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u)))
 
   echo "                  LOCALROUTER AccessPoint Configs (per wireless network type)"
-  CNT=0; echo ${LOCALROUTERAPFILES[@]} | sed 's/ /\n/g' | while read HOSTAPD; do (( CNT=CNT+1 )); echo "$CNT) $HOSTAPD"; done | column
+  CNT=0; echo ${LOCALROUTERAPFILES[@]} | sed 's/ /\n/g' | while read HOSTAPD; do (( CNT=CNT+1 )); echo "$CNT) $(if [[ $HOSTAPD =~ ".*conf$" ]]; then echo "$HOSTAPD [CURRENT]" else echo $HOSTAPD; fi)"; done | column
   if [ ${#LOCALROUTERAPFILES[@]} -ne 1 ]; then
     read -p "         Which Wireless network version will you use? [Default:1] " INLOCALROUTERAPNETWORKFILE
   fi
