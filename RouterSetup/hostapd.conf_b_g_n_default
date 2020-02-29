@@ -1,17 +1,12 @@
 # Configuration Reference -> https://w1.fi/cgit/hostap/plain/hostapd/hostapd.conf
-#
-# Notes: https://www.raspberrypi.org/forums/viewtopic.php?t=208418
-#
 
-ssid=%LOCALROUTERAPNAME%
-wpa_passphrase=%LOCALROUTERAPPASSWORD%
-channel=%LOCALAPCHANNEL%
-
-interface=%LOCALROUTERWLAN%
+ssid=${LOCALROUTERNAME}
+wpa_passphrase=${LOCALROUTERPASSWORD}
+interface=${LOCALROUTERWLAN}
+country_code=${COUNTRY}
+channel=${LOCALROUTERCHANNEL}
 
 driver=nl80211
-
-country=US
 
 #logger_syslog=0
 #logger_syslog_level=4
@@ -21,10 +16,15 @@ country=US
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
-hw_mode=a
-ieee80211ac=1
-vht_capab=[HT40+]
+hw_mode=g
+ieee80211d=1
+ieee80211n=1
 wmm_enabled=1
+# g Optimizations
+ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
+# n Optimizations
+# require_ht=1
+# ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
 
 max_num_sta=255
 

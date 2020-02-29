@@ -6,49 +6,51 @@
 #
 ##
 
-REBOOTDELAY=10
-DEFAULTUSER=pi
-DEFAULTPATH=/home/${DEFAULTUSER}
-LASTPHASEFILE=${DEFAULTPATH}/.phase-routersetup
-CURRENTPROGRAM=$0
-TEMPDIR=/dev/shm
-ETCDIR=/etc
-SURVIVEDIR=${DEFAULTPATH}
-BASHRC=${DEFAULTPATH}/.bashrc
-DOWNLOADSPATH=${DEFAULTPATH}/Downloads
-DEFAULTHOSTNAME=testrouter
-SYSCONF=${ETCDIR}/sysctl.conf
-RCLOCAL=${ETCDIR}/rc.local
-RCNOHUPAP=${DEFAULTPATH}/rc.nohup.ap
-CHECKCONNECTION=${DEFAULTPATH}/CheckConnection.sh
-HOSTAPDCONF=${ETCDIR}/hostapd/hostapd.conf
-DNSMASQCONF=${ETCDIR}/dnsmasq.conf
-LOCALROUTERWLAN=wlan0
-UPLINKWLAN=wlan1
-LOCALROUTERIP=192.168.127.1
-LOCALROUTERIPMASK=255.255.255.0
-LOCALROUTERIPCIDR=192.168.127.1/24
-LOCALROUTERDHCPRANGE=192.168.127.100,192.168.127.200
-LOCALROUTERDHCPLEASETIME=24h
-DHCPCDCONF=${ETCDIR}/dhcpcd.conf
-DISCONNECTOPENVPN=${DEFAULTPATH}/disconnect-openvpn.sh
-CONNECTOPENVPN=${DEFAULTPATH}/connect-openvpn.sh
-ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero)
-CHECKURL=https://api.ipify.org
-UDEVRULESCONF=${ETCDIR}/udev/rules.d/99-com.rules
-UPLINKWIFICONFIGFILE=${ETCDIR}/wpa_supplicant/wpa_supplicant-${UPLINKWLAN}.conf
-RUNUPDATE=${DEFAULTPATH}/run-update.sh
-UPDATEACCOUNT=connectivity@theharpers.homedns.org
-UPDATEPORT=$[12000+(RANDOM%250)]
+export CURRENTPROGRAM=$0
+
+export REBOOTDELAY=10
+export DEFAULTUSER=pi
+export DEFAULTPATH=/home/${DEFAULTUSER}
+export LASTPHASEFILE=${DEFAULTPATH}/.phase-routersetup
+export TEMPDIR=/dev/shm
+export ETCDIR=/etc
+export SURVIVEDIR=${DEFAULTPATH}
+export BASHRC=${DEFAULTPATH}/.bashrc
+export DOWNLOADSPATH=${DEFAULTPATH}/Downloads
+export DEFAULTHOSTNAME=testrouter
+export SYSCONF=${ETCDIR}/sysctl.conf
+export RCLOCAL=${ETCDIR}/rc.local
+export RCNOHUPAP=${DEFAULTPATH}/rc.nohup.ap
+export CHECKCONNECTION=${DEFAULTPATH}/CheckConnection.sh
+export HOSTAPDCONF=${ETCDIR}/hostapd/hostapd.conf
+export DNSMASQCONF=${ETCDIR}/dnsmasq.conf
+export LOCALROUTERWLAN=wlan0
+export LOCALROUTERCHANNEL=0
+export LOCALROUTERIP=192.168.127.1
+export LOCALROUTERIPMASK=255.255.255.0
+export LOCALROUTERIPCIDR=192.168.127.1/24
+export LOCALROUTERDHCPRANGE=192.168.127.100,192.168.127.200
+export LOCALROUTERDHCPLEASETIME=24h
+export UPLINKWLAN=wlan1
+export UPLINKWIFICONFIGFILE=${ETCDIR}/wpa_supplicant/wpa_supplicant-${UPLINKWLAN}.conf
+export DHCPCDCONF=${ETCDIR}/dhcpcd.conf
+export DISCONNECTOPENVPN=${DEFAULTPATH}/disconnect-openvpn.sh
+export CONNECTOPENVPN=${DEFAULTPATH}/connect-openvpn.sh
+export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero)
+export CHECKURL=https://api.ipify.org
+export UDEVRULESCONF=${ETCDIR}/udev/rules.d/99-com.rules
+export RUNUPDATE=${DEFAULTPATH}/run-update.sh
+export UPDATEACCOUNT=connectivity@theharpers.homedns.org
+export UPDATEPORT=$[12000+(RANDOM%250)]
 # raspi-config values
-UNPREDICTABLEWLAN=1
-TZ="America/New_York"
-LOCALE="en.US-UTF-8"
-COUNTRY=us
-KEYMAP=pc101
-STARTSSH=0 # This is inverted 0 means start
-EXPANDROOT=0 # This is inverted 0 means start
-ENABLEBLANKING=1
+export UNPREDICTABLEWLAN=1
+export TZ="America/New_York"
+export LOCALE="en.US-UTF-8"
+export COUNTRY=us
+export KEYMAP=pc101
+export STARTSSH=0 # This is inverted 0 means start
+export EXPANDROOT=0 # This is inverted 0 means start
+export ENABLEBLANKING=1
 
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
@@ -56,6 +58,22 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 output_file=""
 stepwise=0
 
+
+banner() {
+  echo -e "\e[1m" "$@" "\e[0m"
+}
+
+alertbanner() {
+  echo -e "\e[1m\e[31m" "$@" "\e[0m" 1>&2
+}
+
+stepwisebanner() {
+  echo -e "\n\e[33m" "PHASE $@" "\e[0m\n"
+}
+
+greenbanner() {
+  echo -e "\e[1m\e[32m" "$@" "\e[0m"
+}
 
 if [[ "${CURRENTPROGRAM}" =~ gz ]]; then CATIT=zcat; else CATIT=cat; fi
 eval "$CATIT $CURRENTPROGRAM" | sed -n '/^###$/,/^##$/p' | sed 's/^#*//'
@@ -73,28 +91,13 @@ shift $((OPTIND-1))
 
 # Check we're running as ROOT
 if [[ $EUID -ne 0 ]]; then
-   echo "!!!! This script must be run as root !!!!" 1>&2
+   alertbanner "!!!! This script must be run as root !!!!"
    exit 1
 fi
 
 REBOOT=0
 PHASE=0
 
-banner() {
-  echo -e "\e[1m" "$@" "\e[0m"
-}
-
-alertbanner() {
-  echo -e "\e[1m\e[31m" "$@" "\e[0m"
-}
-
-stepwisebanner() {
-  echo -e "\n\e[33m" "PHASE $@" "\e[0m\n"
-}
-
-greenbanner() {
-  echo -e "\e[32m" "$@" "\e[0m"
-}
 
 if [ -e ${LASTPHASEFILE} ]; then
   PHASE=`cat $LASTPHASEFILE`
@@ -168,8 +171,9 @@ main() {
        systemctl enable hostapd
        ;;
     6) banner "   Move static configs from this directory to /etc/"
-       mv hostapd.conf /etc/hostapd/
+       mv hostapd.conf* /etc/hostapd/
        mv wpa_supplicant* /etc/wpa_supplicant/
+       chmod +x *.sh
        ;;
     7) banner "   Update dyanmic Configs"
        greenbanner "     Update ${SYSCONF}, Enable _forward and .forward"
@@ -388,29 +392,24 @@ unstack_configs() {
 }
 
 var_sub_in_file() {
-  while [ ! -z "$1" ]; do
+  for PROCCESSFILE in "$@"; do
     DAFILE="$1"
-    cp -p --force --backup t ${DAFILE} "${DAFILE}_BACKUP" >/dev/null 2>&1
-    SEDCHECKURL=$(echo ${CHECKURL} | sed 's/\//\\\//g')
-    SEDUPDATEPORT=$(echo ${UPDATEPORT} | sed 's/\//\\\//g')
-    SEDUPDATEACCOUNT=$(echo ${UPDATEACCOUNT} | sed 's/\//\\\//g')
-    sed -i 's/%CHECKURL%/'$SEDCHECKURL'/' ${DAFILE}
-    sed -i 's/%UPDATEPORT%/'$SEDUPDATEPORT'/' ${DAFILE}
-    sed -i 's/%UPDATEACCOUNT%/'$SEDUPDATEACCOUNT'/' ${DAFILE}
-
-    shift
+    TEMPFILE=$(mktemp --tmpdir ${TEMPDIR})
+    cat $DAFILE | envsubst > $TEMPFILE
+    cat $TEMPFILE > $DAFILE
+    rm $TEMPFILE
   done
 }
 
 build_uplink_wireless_connection() {
   echo "    Setting up UPLINK Wifi information"
   read -p "    UPLINK Wifi Name? [Default:DangerWIFI] " INUPLINKWIFINAME
-  UPLINKWIFINAME=${INUPLINKWIFINAME:-DangerWIFI}
+  export UPLINKWIFINAME=${INUPLINKWIFINAME:-DangerWIFI}
   read -p "    UPLINK Wifi Quick description or Owner of this link? " INUPLINKWIFIDESCRIPTION
-  UPLINKWIFIDESCRIPTION=${INUPLINKWIFIDESCRIPTION:-Current Localtion Wifi}
+  export UPLINKWIFIDESCRIPTION=${INUPLINKWIFIDESCRIPTION:-Current Localtion Wifi}
   read -p "    UPLINK Wifi Password? [No Default] " INUPLINKWIFIPASSWORD
-  UPLINKWIFIPASSWORD="${INUPLINKWIFIPASSWORD}"
-  UPLINKWIFICONFIGS=( /etc/wpa_supplicant/*wlan1.conf* )
+  export UPLINKWIFIPASSWORD="${INUPLINKWIFIPASSWORD}"
+  UPLINKWIFICONFIGS=$(dirname ${UPLINKWIFICONFIGFILE})/*wlan1.conf*
   cp -p --force --backup t ${UPLINKWIFICONFIGFILE} "${UPLINKWIFICONFIGFILE}_BACKUP" >/dev/null 2>&1
 
   UPLINKWIFICONFIGS=($(echo $(echo "${UPLINKWIFICONFIGS[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) $(echo "${UPLINKWIFICONFIGS[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u)))
@@ -426,45 +425,37 @@ build_uplink_wireless_connection() {
   echo "                  Updating AccessPoint Configs $UPLINKWIFICONFIGFILE"
 
   if [ -z "${UPLINKWIFIPASSWORD}" ]; then
-    UPLINKWIFIKEYMGMT="NONE"
-    UPLINKWIFIHASPASSWORD="#"
+    export UPLINKWIFIKEYMGMT="NONE"
+    export UPLINKWIFIHASPASSWORD="#"
   else
-    UPLINKWIFIKEYMGMT="WPA-PSK"
-    UPLINKWIFIHASPASSWORD=""
+    export UPLINKWIFIKEYMGMT="WPA-PSK"
+    export UPLINKWIFIHASPASSWORD=""
   fi
 
-  sed -i "s/%UPLINKWIFIKEYMGMT%/$UPLINKWIFIKEYMGMT/" ${UPLINKWIFICONFIGFILE}
-  sed -i "s/%UPLINKWIFIPASSWORD%/$UPLINKWIFIPASSWORD/" ${UPLINKWIFICONFIGFILE}
-  sed -i "s/%UPLINKWIFIHASPASSWORD%/$UPLINKWIFIHASPASSWORD/" ${UPLINKWIFICONFIGFILE}
-
-  sed -i "s/%UPLINKWIFINAME%/$UPLINKWIFINAME/" ${UPLINKWIFICONFIGFILE}
-  sed -i "s/%UPLINKWIFIDESCRIPTION%/$UPLINKWIFIDESCRIPTION/" ${UPLINKWIFICONFIGFILE}
+  var_sub_in_file ${UPLINKWIFICONFIGFILE}
 }
 
 build_localrouterap() {
   echo "    Setting up LOCALROUTER Wifi AccessPoint information"
-  read -p "    LOCALROUTER AccessPoint Name? [Default:TestZone] " INLOCALROUTERAPNAME
-  LOCALROUTERAPNAME=${INlOCALROUTERAPNAME:-TestZone}
-  read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERAPPASSWORD
-  LOCALROUTERAPPASSWORD=${INLOCALROUTERAPPASSWORD:-ChangeMe}
+  read -p "    LOCALROUTER AccessPoint Name? [Default:TestZone] " INLOCALROUTERNAME
+  export LOCALROUTERNAME=${INlOCALROUTERNAME:-TestZone}
+  read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERPASSWORD
+  exprot LOCALROUTERPASSWORD=${INLOCALROUTERPASSWORD:-ChangeMe}
 
-  LOCALROUTERAPFILES=( /etc/hostapd/*hostapd.conf* )
+  LOCALROUTERFILES=$(dirname ${HOSTAPDCONF})/*hostapd.conf*
   cp -p --force --backup t ${HOSTAPDCONF} "${HOSTAPDCONF}_BACKUP" >/dev/null 2>&1
-  LOCALROUTERAPFILES=($(echo $(echo "${LOCALROUTERAPFILES[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) $(echo "${LOCALROUTERAPFILES[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u)))
+  LOCALROUTERFILES=($(echo $(echo "${LOCALROUTERFILES[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) $(echo "${LOCALROUTERFILES[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u)))
 
   echo "                  LOCALROUTER AccessPoint Configs (per wireless network type)"
   CNT=0; echo ${LOCALROUTERAPFILES[@]} | sed 's/ /\n/g' | while read HOSTAPD; do (( CNT=CNT+1 )); echo "$CNT) $HOSTAPD"; done | column
   if [ ${#LOCALROUTERAPFILES[@]} -ne 1 ]; then
     read -p "         Which Wireless network version will you use? [Default:1] " INLOCALROUTERAPNETWORKFILE
   fi
-  INLOCALROUTERAPNETWORKFILE=${INLOCALROUTERAPNETWORKFILE:-1} ;  (( INLOCALROUTERAPNETWORKFILE=INLOCALROUTERAPNETWORKFILE-1 ))
-  LOCALROUTERAPNETWORKFILE=${HOSTAPDCONF}
-  cp ${LOCALROUTERAPFILES[$INLOCALROUTERAPNETWORKFILE
-]} ${LOCALROUTERAPNETWORKFILE}
+  INLOCALROUTERNETWORKFILE=${INLOCALROUTERNETWORKFILE:-1} ;  (( INLOCALROUTERNETWORKFILE=INLOCALROUTERNETWORKFILE-1 ))
+  export LOCALROUTERNETWORKFILE=${HOSTAPDCONF}
+  cp ${LOCALROUTERFILES[$INLOCALROUTERNETWORKFILE]} ${LOCALROUTERNETWORKFILE}
 
-  echo "                  Updating LOCALROUTER AccessPoint Configs ($LOCALROUTERAPNETWORKFILE)"
-  sed -i "s/%LOCALROUTERAPNAME%/$LOCALROUTERAPNAME/" ${LOCALROUTERAPNETWORKFILE}
-  sed -i "s/%LOCALROUTERAPPASSWORD%/$LOCALROUTERAPPASSWORD/" ${LOCALROUTERAPNETWORKFILE}
+  var_sub_in_file ${LOCALROUTERNETWORKFILE}
 }
 
 build_udev_localrouterwlan() {

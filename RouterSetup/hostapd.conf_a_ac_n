@@ -3,22 +3,20 @@
 # Notes on AC: http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
 #
 
-ssid=%LOCALROUTERAPNAME%
-wpa_passphrase=%LOCALROUTERAPPASSWORD%
-channel=%LOCALAPCHANNEL%
-vht_oper_centr_freq_seg0_idx=42
-
-# channel= one of:
-# 36 44 52 60 100 108 116 124 132 140 149 157 184 192
-#
-# vht_oper_centr_freq_seg0_idx= one of:
-# 42 58 106 122 138 155
-
-interface=%LOCALROUTERWLAN%
+ssid=${LOCALROUTERNAME}
+wpa_passphrase=${LOCALROUTERPASSWORD}
+interface=${LOCALROUTERWLAN}
+country_code=${COUNTRY}
+channel=${LOCALROUTERCHANNEL}
 
 driver=nl80211
 
-country=US
+# channel= one of:
+# 36 44 52 60 100 108 116 124 132 140 149 157 184 192
+
+vht_oper_centr_freq_seg0_idx=42
+# vht_oper_centr_freq_seg0_idx= one of:
+# 42 58 106 122 138 155
 
 #logger_syslog=0
 #logger_syslog_level=4

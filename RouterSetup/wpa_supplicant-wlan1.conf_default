@@ -5,13 +5,13 @@ country=US
 #Priority higher is preferred.
 
 network={
-  ssid="%UPLINKWIFINAME%"
+  ssid="${UPLINKWIFINAME}"
   # Typical User AP WPA-PreSharedKey
-  key_mgmt=%UPLINKWIFIKEYMGMT%
-  %UPLINKWIFIHASPASSWORD%psk="%UPLINKWIFIPASSWORD%"
+  key_mgmt=${UPLINKWIFIKEYMGMT}
+  ${UPLINKWIFIHASPASSWORD}psk="${UPLINKWIFIPASSWORD}"
   # Prefer this network over other defined networks
   priority=95
-  id_str="%UPLINKWIFIDESCRIPTION%"
+  id_str="${UPLINKWIFIDESCRIPTION}"
   # Allow Nework Card to scan for this network
   scan_ssid=1
 }
