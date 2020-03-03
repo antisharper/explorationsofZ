@@ -2,13 +2,13 @@
 ###
 #
 # Raspberry PI Router Builder
-# v0.1 Stuart R. Harper 2020-02-22
+# v0.3 Stuart R. Harper 2020-02-22
 #
 ##
 
 export CURRENTPROGRAM=$0
 
-source ./variables-$(basenmae $CURRENTPROGRAM)
+source ./variables-$(basename $CURRENTPROGRAM)
 source ./functions-$(basename $CURRENTPROGRAM)
 
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
@@ -16,7 +16,6 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 # Initialize our own variables:
 output_file=""
 stepwise=0
-
 
 banner() {
   echo -e "\e[1m" "$@" "\e[0m"
@@ -56,7 +55,6 @@ fi
 
 REBOOT=0
 PHASE=0
-
 
 if [ -e ${LASTPHASEFILE} ]; then
   PHASE=`cat $LASTPHASEFILE`
@@ -130,8 +128,10 @@ main() {
        systemctl enable hostapd
        ;;
     6) banner "   Move static configs from this directory to /etc/"
-       mv hostapd.conf* /etc/hostapd/
-       mv wpa_supplicant* /etc/wpa_supplicant/
+       touch $(dirname ${HOSTAPDCONF})/hostapd-client-mac.accept
+       touch $(dirname ${HOSTAPDCONF})/hostapd-client-mac.deny
+       mv ${DEFAULTPATH}/hostapd.conf* /etc/hostapd/
+       mv ${DEFAULTPATH}/wpa_supplicant* /etc/wpa_supplicant/
        chmod +x *.sh
        ;;
     7) banner "   Update dyanmic Configs"

@@ -1,0 +1,51 @@
+# Configuration Reference -> https://w1.fi/cgit/hostap/plain/hostapd/hostapd.conf
+#
+# Notes on AC: http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
+#
+
+ssid=${LOCALROUTERNAME}
+wpa_passphrase=${LOCALROUTERPASSWORD}
+interface=${LOCALROUTERWLAN}
+country_code=${COUNTRY}
+channel=${LOCALROUTERCHANNEL}
+
+driver=nl80211
+
+# channel= one of:
+# 36 44 52 60 100 108 116 124 132 140 149 157 184 192
+
+vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
+# vht_oper_centr_freq_seg0_idx= one of:
+# 42 58 106 122 138 155
+
+#logger_syslog=0
+#logger_syslog_level=4
+#logger_stdout=-1
+#logger_stdout_level=0
+
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+
+# AC
+hw_mode=a
+ieee80211n=1
+require_ht=1
+ieee80211ac=1
+require_vht=1
+vht_oper_chwidth=1
+
+max_num_sta=255
+
+macaddr_acl=0
+accept_mac_file=${HOSTAPDDIR}/hostapd-client-mac.accept
+deny_mac_file=${HOSTAPDDIR}/hostapd-client-mac.deny
+
+auth_algs=1
+
+ignore_broadcast_ssid=0
+
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+wpa_group_rekey=86400

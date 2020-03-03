@@ -128,6 +128,58 @@ build_localrouterap() {
   else
     echo "                  Updating AccessPoint Configs $HOSTAPDCONF"
 
+    echo "                     Select Access Point's Channel"
+    if echo $SOURCELOCALROUTERFILE | grep -E '(2.4)' &>/dev/null; then
+      POSSIBLECHANNELS=( $(seq 1 11) )
+      VIEWCHANNELS="1 through 11"
+      DEFAULTCHANNEL=7
+      RADIORATE="2.4GHz"
+    else
+      POSSIBLECHANNELS=( 36 44 52 60 100 108 116 124 132 140 149 157 184 192 )
+      VIEWCHANNELS=${POSSIBLECHANNELS[@]}
+      DEFAULTCHANNEL=36
+      RADIORATE="5GHz"
+    fi
+
+    #Randomly pick a channel
+    DEFAULTCHANNEL=$(shuf -i 1-${#POSSIBLECHANNELS[@]} -n 1); (( DEFAULTCHANNEL=DEFAULTCHANNEL-1 ))
+    DEFAULTCHANNEL=${POSSIBLECHANNELS[$DEFAULTCHANNEL]}
+
+    export LOCALROUTERCHANNEL=0
+    while [ $LOCALROUTERCHANNEL -eq 0 ]; do
+      echo "                       For $RADIORATE radio, available channels are $VIEWCHANNELS"
+      read -p "                     LOCALROUTER AccessPoint Channel? [Default: $DEFAULTCHANNEL] " INLOCALROUTERCHANNEL
+
+      export INLOCALROUTERCHANNEL=${INLOCALROUTERCHANNEL:-$DEFAULTCHANNEL}
+      if echo " ${POSSIBLECHANNELS[@]} " | grep " $INLOCALROUTERCHANNEL " &>/dev/null; then
+        export LOCALROUTERCHANNEL=$INLOCALROUTERCHANNEL
+      else
+        echo; echo "                       Sorry... value entered is not valid!"
+      fi
+    done
+
+    if [ "$RADIORATE" == "5GHz" ]; then
+      POSSIBLEVOCF=( 42 58 106 122 138 155 )
+      DEFAULTVOCF=42
+
+      #Randomly pick a channel
+      DEFAULTVOCF=$(shuf -i 1-${#POSSIBLEVOCF[@]} -n 1); (( DEFAULTVOCF=DEFAULTVOCF-1 ))
+      DEFAULTVOCF=${POSSIBLEVOCF[$DEFAULTVOCF]}
+
+      LOCALROUTERVHTOPERCENTRFREQ=0
+      while [ $LOCALROUTERVHTOPERCENTRFREQ -eq 0 ]; do
+        echo "                       Please select the VHT Center Channel Frequency ${POSSIBLEVOCF[@]}"
+        read -p "                     LOCALROUTER AccessPoint Channel? [Default: $DEFAULTVOCF] " INLOCALROUTERVHTOPERCENTRFREQ
+
+        export INLOCALROUTERVHTOPERCENTRFREQ=${INLOCALROUTERVHTOPERCENTRFREQ:-$DEFAULTVOCF}
+        if echo " ${POSSIBLEVOCF[@]} " | grep " $INLOCALROUTERVHTOPERCENTRFREQ " &>/dev/null; then
+          export LOCALROUTERVHTOPERCENTRFREQ=$INLOCALROUTERVHTOPERCENTRFREQ
+        else
+          echo; echo "                       Sorry... value entered is not valid!"
+        fi
+      done
+    fi
+
     var_sub_in_file ${HOSTAPDCONF}
     return 1
   fi
