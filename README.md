@@ -23,9 +23,9 @@ With 10000 AHr battery a PI-Zero can run for 1 day without issues.
 4. Base Raspian install.
 5. Minimum 2GB SD microcard.
 6. PI must internet connection to get needed files, either hardware or WiFi that PI is already associated.
-__Note:__ For wifi setup, on clean system use ```sudo raspi-config``` and Setup WIFI Association with ```Networking Options```
+- __Note:__ For wifi setup, on clean system use ```sudo raspi-config``` and Setup WIFI Association with ```Networking Options``` and ```Wi-fi```
 7. OpenVPN Config file with ```<key></key>```,```<cert></cert>```, and ```<ca></ca>``` items in the ovpn file.
-   __ Note:___ I use https://gist.github.com/dmytro/0606cb32e42fc0918466
+- __ Note:___ I use https://gist.github.com/dmytro/0606cb32e42fc0918466
 
 ## Setup
 On PI (with Internet Connection):
@@ -33,9 +33,9 @@ On PI (with Internet Connection):
 2. Download this repo
 3. Copy all files from repo into /home/pi
 4. Download you OpenVPN config (.ovpn) into /home/pi
-4. ```cd /home/pi; sudo RouterSetup.sh```  
-   Answer prompts and after 3 reboots you'll have a working all wireless AP to Router with openvpn service.
-   __Note__ Write down your passwords for the Direct access to the PI and the PI's AccessPoint
+5. ```cd /home/pi; sudo RouterSetup.sh```  
+- Answer prompts and after 3 reboots you'll have a working all wireless AP to Router with openvpn service.
+- __Note__ Write down your passwords for the Direct access to the PI and the PI's AccessPoint
 
 ## Additional fun (optional only):
 ###Router status -> Wire LED to pin 17 for router status:
