@@ -201,6 +201,7 @@ EOF
         disable_default_route_ethernet
         ;;
     13) banner "   Disable default gateway on WLAN connection"
+        continue_script_after_reboot
         while route -n | grep -E '^0.0.0.0' &>/dev/null; do
           alertbanner "   Please disconnect USB WIFI device and ethernet" 1>&2
           sleep 5
@@ -297,8 +298,7 @@ EOF
     echo $PHASE > ${LASTPHASEFILE}
 
     if [ $REBOOT -eq 1 ]; then
-      sed -i '/#ROUTERSETUP/d' ${BASHRC}
-      echo "sudo bash $CURRENTPROGRAM $(if (( STEPWISE )); then echo "-s"; fi) #ROUTERSETUP" >> ${BASHRC}
+      continue_script_after_reboot
       if (( STEPWISE )); then
         alertbanner "------------ REBOOT SUGGESTED ----------"
       else

@@ -67,6 +67,11 @@ var_sub_in_file() {
   done
 }
 
+continue_script_after_reboot(){
+  sed -i '/#ROUTERSETUP/d' ${BASHRC}
+  echo "sudo bash $CURRENTPROGRAM $(if (( STEPWISE )); then echo "-s"; fi) #ROUTERSETUP" >> ${BASHRC}
+}
+
 select_from_file_list_default_first() {
   NOMINALFILE=$1
   MATCHFILE=${2:-$(basename ${NOMINALFILE})}
