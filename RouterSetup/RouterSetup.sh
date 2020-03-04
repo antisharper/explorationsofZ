@@ -128,15 +128,15 @@ main() {
        systemctl enable hostapd
        ;;
     6) banner "   Move static configs from this directory to /etc/"
-       touch $(dirname ${HOSTAPDCONF})/hostapd-client-mac.accept
-       touch $(dirname ${HOSTAPDCONF})/hostapd-client-mac.deny
-       mv ${DEFAULTPATH}/hostapd.conf* /etc/hostapd/
-       mv ${DEFAULTPATH}/wpa_supplicant* /etc/wpa_supplicant/
+       touch ${HOSTAPDDIR}/hostapd-client-mac.accept
+       touch ${HOSTAPDDIR}/hostapd-client-mac.deny
+       copy_with_backup ${DEFAULTPATH}/hostapd.conf* /etc/hostapd
+       copy_with_backup ${DEFAULTPATH}/wpa_supplicant* /etc/wpa_supplicant
        chmod +x *.sh
        ;;
-    7) banner "   Update dyanmic Configs"
+    7) banner "   Update dynamic Configs"
        greenbanner "     Update ${SYSCONF}, Enable _forward and .forward"
-       cp -p --backup=t ${DHCPCDCONF} "$(dirname ${DHCPCDCONF})"  &>/dev/null
+       backup_file ${SYSCONF}
        sed -i 's/^#\(.*\)\([\._\]\)forward/\1\2forward/' ${SYSCONF}
        greenbanner "     Build UDEV Rules for LOCALROUTER WLAN ${LOCALROUTERWLAN}"
        build_udev_localrouterwlan
@@ -149,7 +149,7 @@ main() {
        sed -i '/'$BASERCNOHUPAP'/d;s/^exit 0/bash '$SEDRCNOHUPAP'\nexit 0/' ${RCLOCAL}
        chmod +x ${RCNOHUPAP}
        greenbanner "     Update DNSMASQ to allow DHCP advertisement on $LOCALROUTERWLAN for $LOCALROUTERIPMASK + $LOCALROUTERDHCPLEASETIME lease, Lease IP range $LOCALROUTERDHCPRANGE"
-       cp -p --backup=t ${DNSMASQCONF} "$(dirname ${DNSMASQCONF})"  &>/dev/null
+       backup_file ${DNSMASQCONF}
        sed -i '/^interface=/,$d' ${DNSMASQCONF}
        cat <<EOF >> ${DNSMASQCONF}
 
@@ -160,7 +160,7 @@ dhcp-range=$LOCALROUTERDHCPRANGE,$LOCALROUTERIPMASK,$LOCALROUTERDHCPLEASETIME
 #dhcp-option=option:dns-server,$LOCALROUTERIP
 EOF
         greenbanner "     Update DHCPCD to disable $LOCALROUTERWLAN inbound on $LOCALROUTERIP"
-        cp -p --backup=t ${DHCPCDCONF} "$(dirname ${DHCPCDCONF})"  &>/dev/null
+        backup_file ${DHCPCDCONF}
         sed -i '/^interface '$LOCALROUTERWLAN'/,$d' ${DHCPCDCONF}
         cat <<EOF >> ${DHCPCDCONF}
 

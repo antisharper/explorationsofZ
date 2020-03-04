@@ -29,8 +29,8 @@ ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
 max_num_sta=255
 
 macaddr_acl=0
-accept_mac_file=$(dirname ${HOSTAPDCONF})/hostapd-client-mac.accept
-deny_mac_file=$(dirname ${HOSTAPDCONF})/hostapd-client-mac.deny
+accept_mac_file=${HOSTAPDDIR}/hostapd-client-mac.accept
+deny_mac_file=${HOSTAPDDIR}/hostapd-client-mac.deny
 
 auth_algs=1
 

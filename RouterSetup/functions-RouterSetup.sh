@@ -14,13 +14,30 @@ get_outside_ip() {
   curl -s ${CHECKURL}; echo
 }
 
+backup_file() {
+  BACKUPFILE=$1
+
+  CNT=1
+  while [ -e "${BACKUPFILE}.~${CNT}~" ]; do (( CNT=CNT+1 )); done
+  cp -p -v $BACKUPFILE "${BACKUPFILE}.~${CNT}~"
+}
+
+copy_with_backup() {
+  COPYFILES=( $@ )
+  if [ -d ${COPYFILES[-1]} ]; then
+      DESTDIR=${COPYFILES[-1]};
+      unset 'COPYFILES[${#COPYFILES[@]}-1]'
+  else DESTDIR=$(dirname ${COPYFILES[0]}); fi
+  cp -v -p --backup=t ${COPYFILES[@]} ${DESTDIR}
+}
+
 unstack_configs() {
   if [[ "$CURRENTPROGRAM" =~ "gz" ]]; then CATIT=zcat; else CATIT=cat; fi
   eval "$CATIT $CURRENTPROGRAM" | grep -E '^::::: ' | awk '{print $2}' | while read OUTFILE; do
     if [[ ! -z "${OUTFILE}" ]]; then
       OUTIT=`basename ${OUTFILE}`
       NEWOUT=$(echo $OUTFILE | sed 's/\//\\\//g')
-      if [ -e ${OUTFILE} ]; then cp -p --backup=t ${OUTFILE} "$(dirname ${OUTFILE})" &>/dev/null; fi
+      if [ -e ${OUTFILE} ]; then copy_with_backup "$(dirname ${OUTFILE})"; fi
       echo "      ----- $OUTFILE ----- "
       eval "$CATIT $CURRENTPROGRAM" | sed -n '/^::::: '$NEWOUT'/,/^::::: /p' | grep -vE "^::::: " > ${OUTFILE}
       if [ ! -s ${OUTFILE} ]; then
@@ -43,6 +60,7 @@ var_sub_in_file() {
   for PROCESSFILE in "$@"; do
     #echo "                    Substituting variables in file $PROCESSFILE"
     TEMPFILE=$(mktemp ${TEMPDIR}/temp.XXXXXXXX)
+    backup_file $PROCESSFILE ${PROCESSFILE}_backup
     cat $PROCESSFILE | envsubst > $TEMPFILE
     cat $TEMPFILE > $PROCESSFILE
     rm $TEMPFILE
@@ -61,13 +79,14 @@ select_from_file_list_default_first() {
     alertbanner "!!!! File list is empty !!!!"
     export RETURNEDVAL=
   elif [ ${#DEFAULTFIRST[@]} -eq 1 ]; then
-    SELECTEDFILENUM=1
+    SELECTEDFILENUM=0
+    export RETURNEDVAL=${DEFAULTFIRST[$SELECTEDFILENUM]}
   else
     CNT=0; for AFILE in ${DEFAULTFIRST[@]}; do (( CNT=CNT+1 )); echo "$CNT) $AFILE"; done | column
     SELECTEDFILENUM=-1
     while (( SELECTEDFILENUM == -1 )); do
 
-      read -p "         Which config version will you use? [Default: 1] " INSELECTEDFILENUM
+      read -p "         Which config file will you use? [Default: 1] " INSELECTEDFILENUM
       SELECTEDFILENUM=${INSELECTEDFILENUM:-1}
 
       if [ $SELECTEDFILENUM -lt 1 ] || [ $SELECTEDFILENUM -gt "${#DEFAULTFIRST[@]}" ]; then
@@ -76,8 +95,7 @@ select_from_file_list_default_first() {
       fi
     done
 
-    (( SELECTEDFILENUM=SELECTEDFILENUM-1))
-    cp -v ${DEFAULTFIRST[$SELECTEDFILENUM]} ${NOMINALFILE}
+    (( SELECTEDFILENUM=SELECTEDFILENUM-1 ))
     export RETURNEDVAL=${DEFAULTFIRST[$SELECTEDFILENUM]}
    fi
 }
@@ -89,10 +107,11 @@ build_uplink_wireless_connection() {
   read -p "    UPLINK Wifi Quick description or Owner of this link? " INUPLINKWIFIDESCRIPTION
   export UPLINKWIFIDESCRIPTION=${INUPLINKWIFIDESCRIPTION:-Current Localtion Wifi}
   read -p "    UPLINK Wifi Password? [No Default] " INUPLINKWIFIPASSWORD
-  echo "                  UPLINK WiFi Configurations found:"
-  export UPLINKWIFIPASSWORD="${INUPLINKWIFIPASSWORD}"
 
+  export UPLINKWIFIPASSWORD="${INUPLINKWIFIPASSWORD}"
   select_from_file_list_default_first "${UPLINKWIFICONFIGFILE}" "${UPLINKWLAN}"
+
+  echo "                  UPLINK WiFi Configurations found:"
   SOURCEUPLINKCONFIGFILE=${RETURNEDVAL}
 
   if [ -z ${SOURCEUPLINKCONFIGFILE} ]; then
@@ -108,6 +127,7 @@ build_uplink_wireless_connection() {
       export UPLINKWIFIHASPASSWORD=""
     fi
 
+    cp -p -v --backup=t ${SOURCEUPLINKCONFIGFILE} ${UPLINKWIFICONFIGFILE}
     var_sub_in_file ${UPLINKWIFICONFIGFILE}
     return 1
   fi
@@ -180,6 +200,7 @@ build_localrouterap() {
       done
     fi
 
+    cp -p -v --backup=t ${SOURCELOCALROUTERFILE} ${HOSTAPDCONF}
     var_sub_in_file ${HOSTAPDCONF}
     return 1
   fi
@@ -194,7 +215,7 @@ build_udev_localrouterwlan() {
   fi
   WLAN=`echo $WLANS | awk '{print $1}'`
   ETHER=`ifconfig $WLAN | awk '/ether/ {print $2}'`
-  cp -p --backup=t ${UDEVRULESCONF} "$(dirname ${UDEVRULESCONF})" &>/dev/null
+  backup_file ${UDEVRULESCONF}
   cat << EOF >> ${UDEVRULESCONF}
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="$ETHER", NAME="$WLAN"
 EOF
@@ -204,7 +225,7 @@ add_udev_uplinkwlan() {
   WLAN=$1
   TARGETWLAN=$2
   ETHER=`ifconfig $WLAN | awk '/ether/ {print $2}'`
-  cp -p --backup=t ${UDEVRULESCONF} "$(dirname ${UDEVRULESCONF})"  &>/dev/null
+  backup_file ${UDEVRULESCONF}
   cat <<EOF >> ${UDEVRULESCONF}
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="$ETHER", NAME="$UPLINKWLAN"
 EOF
