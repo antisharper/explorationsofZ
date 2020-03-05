@@ -142,8 +142,6 @@ main() {
        build_udev_localrouterwlan
        greenbanner "     Update ROUTER Software Auto start ($RCNOHUPAP)"
        var_sub_in_file ${RCNOHUPAP}
-       greenbanner "     Update CheckConnection script ($CHECKCONNECTION)"
-       var_sub_in_file ${CHECKCONNECTION}
        greenbanner "     Add ROUTER Software Auto Start (${RCNOHUPAP}) to ${RCLOCAL}"
        BASERCNOHUPAP=$(basename ${RCNOHUPAP}) ; SEDRCNOHUPAP=$(echo $RCNOHUPAP | sed 's/\//\\\//g')
        sed -i '/'$BASERCNOHUPAP'/d;s/^exit 0/bash '$SEDRCNOHUPAP'\nexit 0/' ${RCLOCAL}
