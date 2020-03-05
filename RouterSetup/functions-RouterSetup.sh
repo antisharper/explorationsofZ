@@ -67,8 +67,12 @@ var_sub_in_file() {
   done
 }
 
-continue_script_after_reboot(){
+remove_install_from_bashrc(){
   sed -i '/#ROUTERSETUP/d' ${BASHRC}
+}
+
+continue_script_after_reboot(){
+  remove_install_from_bashrc
   echo "sudo bash $CURRENTPROGRAM $(if (( STEPWISE )); then echo "-s"; fi) #ROUTERSETUP" >> ${BASHRC}
 }
 

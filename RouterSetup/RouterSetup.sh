@@ -203,9 +203,10 @@ EOF
     13) banner "   Disable default gateway on WLAN connection"
         continue_script_after_reboot
         while route -n | grep -E '^0.0.0.0' &>/dev/null; do
-          alertbanner "   Please disconnect USB WIFI device and ethernet" 1>&2
+          alertbanner "   Please disconnect USB WIFI device and/or Ethernet Cable" 1>&2
           sleep 5
         done
+        sed -i '/#ROUTERSETUP/d' ${BASHRC}
         ;;
     14) banner "   Verify $LOCALROUTERWLAN has IP $LOCALROUTERIP"
         if ! ifconfig $LOCALROUTERWLAN | grep $LOCALROUTERIP >/dev/null; then
