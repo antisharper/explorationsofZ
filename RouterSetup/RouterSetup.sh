@@ -132,15 +132,15 @@ main() {
        printf "\n\n\n\n" | sudo -u pi ssh-keygen -t rsa -b 4096 -P ""
        ;;
     9) banner "Denote UPDATE account"
-       read -p "\t Please USERNAME@SERVER for this routers UPDATE CONNECTION ([RETURN] if you do not want an update connection) " UPDATEACCOUNT
+       read -p "  Please enter the USERNAME@SERVER for this routers UPDATE CONNECTION ([RETURN] if you do not want an update connection) " UPDATEACCOUNT
        if [[ ! -z "$UPDATEACCOUNT" ]]; then
          alertbanner "\t\t Remember to add ${DEFAULTPATH}/.ssh/id_rsa.pub into $INUPDATEACCOUNT:.ssh/authorized_keys to enable this function."
          sleep 2
        fi
        ;;
-    10) banner "Move HOSTAPD and WPA_SUPPLICANT configs to /etc/"
+    10) banner "Move HOSTAPD and WPA_SUPPLICANT configs to ${ETCDIR}"
         copy_with_backup ${DEFAULTPATH}/hostapd.conf* $(dirname ${HOSTAPDCONF})
-        copy_with_backup ${DEFAULTPATH}/wpa_supplicant* $(dirname ${UPLINKCONFIGFILE})
+        copy_with_backup ${DEFAULTPATH}/wpa_supplicant* $(dirname ${UPLINKWIFICONFIGFILE})
         ;;
     11) banner "Update ${SYSCONF}, Enable _forward and .forward"
         backup_file ${SYSCONF}
