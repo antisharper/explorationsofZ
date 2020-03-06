@@ -111,6 +111,10 @@ main() {
          alertbanner " When you have an internet link, restart the router installation."
          exit 1
        fi
+       if [ "$($dirname ${CURRENTPROGRAM})" == "${DEFAULTPATH}"]; then
+          greenbanner "     Copy from GIT Directory to HOME ${DEFAULTPATH}"
+          copy_with_backup $($dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
+       fi
        greenbanner "     Update Repos"
        apt-get -y update
        greenbanner "     Upgrade current packges"
