@@ -46,8 +46,8 @@ On PI (with Internet Connection):
 - **Long Pulse**  < Internet is available but VPN is down/disabled
 - **ON**          < Internet available and VPN is up -> You're Secure!
 
-### Switch to Control VPN Connection -> Wire switch to pin 21.
-- Hold Switch for 1/2 second to toggle status of VPN (file /dev/shm/no-openvpn is created/removed)
+#### Switch to Control VPN Connection -> Wire switch to pin 21.
+- Hold Switch for 1/2 second to toggle status of VPN (file /dev/shm/no-openvpn is created/removed). This stops and starts the OPENVPN connection.
 
 ## Future
 - [ ] Web Status
