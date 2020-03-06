@@ -23,9 +23,9 @@ With 10000 AHr battery a PI-Zero can run for 1 day without issues.
 4. Base Raspian install.
 5. Minimum 2GB SD microcard.
 6. PI must have an internet connection to get needed files, with connected ethernet or WiFi.
- __Note:__ For wifi setup, on clean system use ```sudo raspi-config``` and Setup WIFI Association with ```Networking Options``` and ```Wi-fi```
+  . __Note:__ For wifi setup, on clean system use ```sudo raspi-config``` and Setup WIFI Association with ```Networking Options``` and ```Wi-fi```
 7. OpenVPN Config file with ```<key></key>```,```<cert></cert>```, and ```<ca></ca>``` items in the ovpn file.
- __Note:__ I use https://gist.github.com/dmytro/0606cb32e42fc0918466
+   . __Note:__ I use https://gist.github.com/dmytro/0606cb32e42fc0918466
 
 ## Setup
 On PI (with Internet Connection):
