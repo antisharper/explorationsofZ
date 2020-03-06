@@ -18,19 +18,19 @@ output_file=""
 stepwise=0
 
 banner() {
-  echo -e "\e[1m" "$@" "\e[0m"
+  printf "\e[1m$@\e[0m\n"
 }
 
 alertbanner() {
-  echo -e "\e[1m\e[31m" "$@" "\e[0m" 1>&2
+  printf "\e[1m\e[31m$@\e[0m\n" 1>&2
 }
 
 stepwisebanner() {
-  echo -e "\n\e[33m" "PHASE $@" "\e[0m\n"
+  printf "\n\e[33mPHASE $@\e[0m\n\n"
 }
 
 greenbanner() {
-  echo -e "\e[1m\e[32m" "$@" "\e[0m"
+  printf "\e[1m\e[32m$@\e[0m\n"
 }
 
 if [[ "${CURRENTPROGRAM}" =~ gz ]]; then CATIT=zcat; else CATIT=cat; fi
@@ -67,37 +67,42 @@ main() {
   while [ $PHASE -gt -1 ]; do
     stepwisebanner $PHASE
     case $PHASE in
-    0) banner "   Please change the password for account pi:"
+    0) banner "Please change the password for account pi:"
        passwd pi
        ;;
-    1) read -p "   Please enter HOSTNAME for this router (default:$DEFAULTHOSTNAME) " INHOSTNAME
+    1) read -p "Please enter HOSTNAME for this router (default:$DEFAULTHOSTNAME) " INHOSTNAME
        raspi-config nonint do_hostname ${INHOSTNAME:-$DEFAULTHOSTNAME}
        ;;
-    2) banner "   Setting RASPI-CONFIG configs"
-       greenbanner "     Network Interface Names to UNPREDICTABLE"
+    2) banner "Setting RASPI-CONFIG configs"
+       greenbanner "\t Network Interface Names to UNPREDICTABLE"
        raspi-config nonint do_net_names ${UNPREDICTABLEWLAN}
-       greenbanner "     TEMPORARILY Setting Boot -> Desktop/CLI -> Console Text / AUTO Login"
+       greenbanner "\t TEMPORARILY Setting Boot -> Desktop/CLI -> Console Text / AUTO Login"
        raspi-config nonint do_boot_behaviour B2
-       greenbanner "     Setting Localization -> Locale -> ${LOCALE}"
+       greenbanner "\t Setting Localization -> Locale -> ${LOCALE}"
        raspi-config nonint do_change_locale ${LOCALE}
-       greenbanner "     Setting Localization -> Timezone -> $TZ"
+       greenbanner "\t Setting Localization -> Timezone -> $TZ"
        raspi-config nonint do_change_timezone ${TZ}
-       greenbanner "     Setting Localization -> Keyboard -> Generic 101-Key PC -> Other - > English (US) -> English (US) -> Default -> No Compose"
+       greenbanner "\t Setting Localization -> Keyboard -> Generic 101-Key PC -> Other - > English (US) -> English (US) -> Default -> No Compose"
        localectl set-keymap ${KEYMAP}
        localectl set-x11-keymap ${COUNTRY} ${KEYMAP}
-       greenbanner "     Setting Localization -> Wifi Country -> US"
+       greenbanner "\t Setting Localization -> Wifi Country -> US"
        raspi-config nonint do_wifi_country ${COUNTRY}
-       greenbanner "     Enable Interface -> SSH"
+       greenbanner "\t Enable Interface -> SSH"
        raspi-config nonint do_ssh ${STARTSSH}
-       greenbanner "     Enable Advanced Options -> Expand Filesystem"
+       greenbanner "\t Enable Advanced Options -> Expand Filesystem"
        raspi-config nonint do_expand_rootfs ${EXPANDROOT}
-       greenbanner "     Enable Advanced Options -> Enable Screen Blanking"
+       greenbanner "\t Enable Advanced Options -> Enable Screen Blanking"
        raspi-config nonint do_blanking ${ENABLEBLANKING}
-       greenbanner "     Commit Config Changes"
+       greenbanner "\t Commit Config Changes"
        raspi-config nonint do_finish
        ;;
-    3) banner "   Update apt repositories and install needed upgrades and packages"
-       echo "     Checking for Internet Link"
+    3) if [ "$($dirname ${CURRENTPROGRAM})" == "${DEFAULTPATH}" ]; then
+          greenbanner "\t Copy from GIT Directory to HOME ${DEFAULTPATH}"
+          copy_with_backup $($dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
+       fi
+       chmod +x ${DEFAULTPATH}/*.sh
+       ;;
+    4) banner "Checking for Internet Link"
        if ! route -n | grep -E '^0.0.0.0' &>/dev/null; then
          alertbanner " !!!! No Internet link has been found !!!!"
          alertbanner " Please connect an ethernet cable or ... "
@@ -111,49 +116,51 @@ main() {
          alertbanner " When you have an internet link, restart the router installation."
          exit 1
        fi
-       if [ "$($dirname ${CURRENTPROGRAM})" == "${DEFAULTPATH}" ]; then
-          greenbanner "     Copy from GIT Directory to HOME ${DEFAULTPATH}"
-          copy_with_backup $($dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
-       fi
-       greenbanner "     Update Repos"
-       apt-get -y update
-       greenbanner "     Upgrade current packges"
-       apt-get -y upgrade
-       greenbanner "   Install additional VPN and support packages (${ADDPACKAGELIST[@]})"
+       ;;
+    5) banner "Update Repos"
+       apt-get update -y
+       ;;
+    6) banner "Upgrade current packges"
+       apt-get dist-upgrade -y
+       ;;
+    7) banner "Install additional VPN and support packages (${ADDPACKAGELIST[@]})"
        apt-get install -y ${ADDPACKAGELIST[@]}
        REBOOT=1
        ;;
-    4) banner "   Create ssh key for pi"
+    8) banner "Creating ssh key for account pi (This may take a minute or so on a PI ZERO)"
        rm -rf "${DEFAULTPATH}/.ssh"
        printf "\n\n\n\n" | sudo -u pi ssh-keygen -t rsa -b 4096 -P ""
        ;;
-    5) banner "   Unmask and Enable hostapd"
-       systemctl unmask hostapd
-       systemctl enable hostapd
+    9) banner "Denote UPDATE account"
+       read -p "\t Please USERNAME@SERVER for this routers UPDATE CONNECTION ([RETURN] if you do not want an update connection) " UPDATEACCOUNT
+       if [[ ! -z "$UPDATEACCOUNT" ]]; then
+         alertbanner "\t\t Remember to add ${DEFAULTPATH}/.ssh/id_rsa.pub into $INUPDATEACCOUNT:.ssh/authorized_keys to enable this function."
+         sleep 2
+       fi
        ;;
-    6) banner "   Move static configs from this directory to /etc/"
-       touch ${HOSTAPDDIR}/hostapd-client-mac.accept
-       touch ${HOSTAPDDIR}/hostapd-client-mac.deny
-       copy_with_backup ${DEFAULTPATH}/hostapd.conf* /etc/hostapd
-       copy_with_backup ${DEFAULTPATH}/wpa_supplicant* /etc/wpa_supplicant
-       chmod +x ${DEFAULTPATH}/*.sh
-       ;;
-    7) banner "   Update dynamic Configs"
-       greenbanner "     Update ${SYSCONF}, Enable _forward and .forward"
-       backup_file ${SYSCONF}
-       sed -i 's/^#\(.*\)\([\._\]\)forward/\1\2forward/' ${SYSCONF}
-       greenbanner "     Build UDEV Rules for LOCALROUTER WLAN ${LOCALROUTERWLAN}"
-       build_udev_localrouterwlan
-       greenbanner "     Update ROUTER Software Auto start ($RCNOHUPAP)"
-       var_sub_in_file ${RCNOHUPAP}
-       greenbanner "     Add ROUTER Software Auto Start (${RCNOHUPAP}) to ${RCLOCAL}"
-       BASERCNOHUPAP=$(basename ${RCNOHUPAP}) ; SEDRCNOHUPAP=$(echo $RCNOHUPAP | sed 's/\//\\\//g')
-       sed -i '/'$BASERCNOHUPAP'/d;s/^exit 0/bash '$SEDRCNOHUPAP'\nexit 0/' ${RCLOCAL}
-       chmod +x ${RCNOHUPAP}
-       greenbanner "     Update DNSMASQ to allow DHCP advertisement on $LOCALROUTERWLAN for $LOCALROUTERIPMASK + $LOCALROUTERDHCPLEASETIME lease, Lease IP range $LOCALROUTERDHCPRANGE"
-       backup_file ${DNSMASQCONF}
-       sed -i '/^interface=/,$d' ${DNSMASQCONF}
-       cat <<EOF >> ${DNSMASQCONF}
+    10) banner "Move HOSTAPD and WPA_SUPPLICANT configs to /etc/"
+        copy_with_backup ${DEFAULTPATH}/hostapd.conf* $(dirname ${HOSTAPDCONF})
+        copy_with_backup ${DEFAULTPATH}/wpa_supplicant* $(dirname ${UPLINKCONFIGFILE})
+        ;;
+    11) banner "Update ${SYSCONF}, Enable _forward and .forward"
+        backup_file ${SYSCONF}
+        sed -i 's/^#\(.*\)\([\._\]\)forward/\1\2forward/' ${SYSCONF}
+        ;;
+    12) banner "Build UDEV Rules for LOCALROUTER WLAN ${LOCALROUTERWLAN}"
+        build_udev_localrouterwlan
+        ;;
+    13) banner "Update router run script ($RCNOHUPAP)"
+        var_sub_in_file ${RCNOHUPAP}
+        ;;
+    14) banner "Add router run script (${RCNOHUPAP}) to server auto start ${RCLOCAL}"
+        BASERCNOHUPAP=$(basename ${RCNOHUPAP}) ; SEDRCNOHUPAP=$(echo $RCNOHUPAP | sed 's/\//\\\//g')
+        sed -i '/'$BASERCNOHUPAP'/d;s/^exit 0/bash '$SEDRCNOHUPAP'\nexit 0/' ${RCLOCAL}
+        chmod +x ${RCNOHUPAP}
+        ;;
+    15) banner "Update DNSMASQ to allow DHCP advertisement on $LOCALROUTERWLAN for $LOCALROUTERIPMASK + $LOCALROUTERDHCPLEASETIME lease, Lease IP range $LOCALROUTERDHCPRANGE"
+        backup_file ${DNSMASQCONF}
+        sed -i '/^interface=/,$d' ${DNSMASQCONF}
+        cat <<EOF >> ${DNSMASQCONF}
 
 # ROUTERSETUP
 interface=$LOCALROUTERWLAN
@@ -161,7 +168,8 @@ no-dhcp-interface=$UPLINKWLAN
 dhcp-range=$LOCALROUTERDHCPRANGE,$LOCALROUTERIPMASK,$LOCALROUTERDHCPLEASETIME
 #dhcp-option=option:dns-server,$LOCALROUTERIP
 EOF
-        greenbanner "     Update DHCPCD to disable $LOCALROUTERWLAN inbound on $LOCALROUTERIP"
+        ;;
+    16) banner "Update DHCPCD to disable $LOCALROUTERWLAN inbound on $LOCALROUTERIP"
         backup_file ${DHCPCDCONF}
         sed -i '/^interface '$LOCALROUTERWLAN'/,$d' ${DHCPCDCONF}
         cat <<EOF >> ${DHCPCDCONF}
@@ -173,44 +181,44 @@ interface $LOCALROUTERWLAN
     denyinterfaces $LOCALROUTERWLAN
 EOF
         ;;
-    8) banner "   Setup UPDATE account"
-       read -p "      Please USERNAME@SERVER for this routers UPDATE CONNECTION ([RETURN] if you do not want an update connection) " INUPDATEACCOUNT
-       if [[ ! -z "$INUPDATEACCOUNT" ]]; then
-         var_sub_in_file ${RUNUPDATE}
-         alertbanner "        Remember to add ${DEFAULTPATH}/.ssh/id_rsa.pub into $INUPDATEACCOUNT:.ssh/authorized_keys to enable this function."
-         sleep 5
-       fi
-       ;;
-    9) banner "   Build LOCAL ROUTER AccessPoint Configuration"
+    17) banner "Build AP (HOSTAPD) Configuration"
        if build_localrouterap; then
          alertbanner "!!!!! Unable to select an HOSTAPD CONFIG FILE !!!!"
          alertbanner "!!!!! Fix the files at $HOSTAPD then restart this setup script !!!!"
          exit 1
-      fi
+       fi
        ;;
-    10) banner "   Setup UPLINK WLAN ($UPLINKWLAN) Configuration"
+    18) banner "Setup UPLINK WLAN ($UPLINKWLAN) Configuration"
         if build_uplink_wireless_connection; then
           alertbanner "!!!!! Unable to select an UPLINK WIFI CONFIG FILE !!!!"
           alertbanner "!!!!! Fix the files at $UPLINKCONFIGFILE then restart this setup script !!!!"
           exit 1
         fi
         ;;
-    11) banner "   Configurations completed. Rebooting to verify auto start working correctly"
+    19) banner "Configurations completed. Rebooting to test auto start working correctly"
         REBOOT=1
         ;;
-    12) banner "   Disable OpenVPN and ethernet default gateways"
+    20) banner "Disable OpenVPN and wireless/ethernet default gateways"
         ${DISCONNECTOPENVPN}
         disable_default_route_ethernet
         ;;
-    13) banner "   Disable default gateway on WLAN connection"
+    21) banner "Disable default gateway on current wireless or ethernet connection"
         continue_script_after_reboot
         while route -n | grep -E '^0.0.0.0' &>/dev/null; do
           alertbanner "   Please disconnect USB WIFI device and/or Ethernet Cable" 1>&2
           sleep 5
         done
-        sed -i '/#ROUTERSETUP/d' ${BASHRC}
+        remove_install_script_from_bashrc
         ;;
-    14) banner "   Verify $LOCALROUTERWLAN has IP $LOCALROUTERIP"
+    22) banner "Unmask and Enable hostapd"
+       touch ${HOSTAPDDIR}/hostapd-client-mac.accept
+       touch ${HOSTAPDDIR}/hostapd-client-mac.deny
+       systemctl unmask hostapd
+       systemctl enable hostapd
+       systemctl restart hostapd
+       sleep 5
+       ;;
+    23) banner "Verify $LOCALROUTERWLAN has IP $LOCALROUTERIP"
         if ! ifconfig $LOCALROUTERWLAN | grep $LOCALROUTERIP >/dev/null; then
           alertbanner "!!!! Serious error while verifying service !!!! " 1>&2
           alertbanner "!!!! Check hardware and script !!!! " 1>&2
@@ -232,7 +240,7 @@ EOF
           add_udev_uplinkwlan $LOCALROUTERWLAN $UPLINKWLAN
           UPLINKWLANETHER=`ifconfig $LOCALROUTERWLAN &>/dev/null | grep ether`
           while [[ `ifconfig $LOCALROUTERWLAN | grep ether` == "$UPLINKWLANETHER" ]]; do
-            alertbanner "   Due to a configuration error, you'll need to remove our USB WIFI for 5 secs then REATTACH IT" 1>&2
+            alertbanner "!!!! Due to a configuration error, you'll need to remove our USB WIFI for 5 secs then REATTACH IT" 1>&2
             sleep 5
           done
           sleep 10
@@ -247,7 +255,7 @@ EOF
           REBOOT=1
         fi
         ;;
-    15) banner "   Check UPLINKWLAN ($UPLINKWLAN) and LOCALROUTERWLAN ($LOCALROUTERWLAN) are correctly assigned"
+    24) banner "Check UPLINKWLAN ($UPLINKWLAN) and LOCALROUTERWLAN ($LOCALROUTERWLAN) are correctly assigned"
         ${DISCONNECTOPENVPN}
         disable_default_route_ethernet
         UPLINKWLANETHER=`ifconfig $UPLINKWLAN | grep ether`
@@ -263,11 +271,12 @@ EOF
           exit 2
         fi
         ;;
-    16) banner "   Waiting until UPLINKWLAN ($UPLINKWLAN USB WIFI) is ACCESSING the UPLINK WIFI NETWORK"
+    25) banner "Waiting until UPLINKWLAN ($UPLINKWLAN USB WIFI) is ACCESSING the UPLINK WIFI NETWORK"
         disable_default_route_ethernet
+        greenbanner "\t Waiting until ${CHECKPACKETS} pass through ${UPLINKWLAN}"
         while [[ `ifconfig $UPLINKWLAN | awk '/RX packets/ {print $3}'` -lt 40 ]]; do
           UPLINKIP=$(get_outside_ip)
-          echo "                 OUTSIDE IP is $UPLINKIP"
+          echo "\t\t\t OUTSIDE IP is $UPLINKIP"
           iwconfig $UPLINKWLAN
           ifconfig $UPLINKWLAN
           sleep 5
@@ -275,7 +284,7 @@ EOF
         done
         TUNNELIP=$UPLINKIP
         ;;
-    17) banner "    Starting Openvpn Connection and waiting until secure connection is established."
+    26) banner "Starting Openvpn Connection and waiting until secure connection is established."
         disable_default_route_ethernet
         ${CONNECTOPENVPN}
         UPLINKIP=$(get_outside_ip)
@@ -285,12 +294,12 @@ EOF
           sleep 5
         done
         ;;
-    18) banner "   Resetting Boot -> Desktop/CLI -> Console Text / Password Login"
+    27) banner "Resetting Boot -> Desktop/CLI -> Console Text / Password Login"
         raspi-config nonint do_boot_behaviour B1
         ;;
-    19) banner "   Router Configuration has been successfully completed and confirmed!"
-        banner "   Please open on a phone or other device and connect them to the LOCAL AP"
-        grep -Ei '^(ssid=|wpa_passphrase=)' ${HOSTAPDCONF} |column
+    28) banner "Router Configuration has been successfully completed and confirmed!"
+        banner "Please open on a phone or other device and connect them to the LOCAL AP"
+        grep -Ei '^(ssid=|wpa_passphrase=)' ${HOSTAPDCONF} | xargs echo "    "
         ;;
     *) PHASE=-2; REBOOT=0 ;;
     esac
@@ -305,7 +314,7 @@ EOF
       if (( STEPWISE )); then
         alertbanner "------------ REBOOT SUGGESTED ----------"
       else
-        alertbanner "   Router Setup will continue after reboot!"
+        alertbanner "!!! $CURRENTPROGRAM will continue after reboot !!!!"
         sleep $REBOOTDELAY
         reboot
       fi
