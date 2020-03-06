@@ -1,17 +1,17 @@
 # RouterSetup - Raspberry PI (Zero/3/4) - Wireless Router and AP with OpenVPN
 
-Based on https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md, 
+Based on https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md,
          https://pimylifeup.com/raspberry-pi-wireless-access-point/,
      and https://gist.github.com/dmytro/0606cb32e42fc0918466
-     
-     
+
+
 Single to run and take a Raspberry PI 0/3/4 to a fully working Wireless-to-wireless Router/AP with OpenVPN
 
 Using PI Zero and External USB 2.0 network is all 802.11b based and easily capable of handling
  - 1080p video stream
  - RDP/NoMachine sessions to desktops
  - more orless more mundance networking needs.
- 
+
 Currently no web/gui controls or status - All command line for now
 
 With 10000 AHr battery a PI-Zero can run for 1 day without issues.
@@ -22,18 +22,17 @@ With 10000 AHr battery a PI-Zero can run for 1 day without issues.
 3. USB Micro to USB 2.0 extender.
 4. Base Raspian install.
 5. Minimum 2GB SD microcard.
-6. PI must internet connection to get needed files, either hardware or WiFi that PI is already associated.
+6. PI must have an internet connection to get needed files, with connected ethernet or WiFi.
 - __Note:__ For wifi setup, on clean system use ```sudo raspi-config``` and Setup WIFI Association with ```Networking Options``` and ```Wi-fi```
 7. OpenVPN Config file with ```<key></key>```,```<cert></cert>```, and ```<ca></ca>``` items in the ovpn file.
 - __ Note:___ I use https://gist.github.com/dmytro/0606cb32e42fc0918466
 
 ## Setup
 On PI (with Internet Connection):
-1. Login
-2. Download this repo
-3. Copy all files from repo into /home/pi
-4. Download you OpenVPN config (.ovpn) into /home/pi
-5. ```cd /home/pi; sudo RouterSetup.sh```  
+1. Login to pi account.
+2. Download this repo ```git clone https://github.com/antisharper/explorationsofZ.git```
+3. Download you OpenVPN config (.ovpn) into /home/pi. ```scp myaccount@mysourceserver:myconfig.ovpn .```
+4. Run install script. ```cd /home/pi; sudo explorationsofZ/RouterSetup.sh```  
 - Answer prompts and after 3 reboots you'll have a working all wireless AP to Router with openvpn service.
 - __Note__ Write down your passwords for the Direct access to the PI and the PI's AccessPoint
 
