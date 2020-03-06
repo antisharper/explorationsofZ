@@ -111,7 +111,7 @@ main() {
          alertbanner " When you have an internet link, restart the router installation."
          exit 1
        fi
-       if [ "$($dirname ${CURRENTPROGRAM})" == "${DEFAULTPATH}"]; then
+       if [ "$($dirname ${CURRENTPROGRAM})" == "${DEFAULTPATH}" ]; then
           greenbanner "     Copy from GIT Directory to HOME ${DEFAULTPATH}"
           copy_with_backup $($dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
        fi
@@ -136,7 +136,7 @@ main() {
        touch ${HOSTAPDDIR}/hostapd-client-mac.deny
        copy_with_backup ${DEFAULTPATH}/hostapd.conf* /etc/hostapd
        copy_with_backup ${DEFAULTPATH}/wpa_supplicant* /etc/wpa_supplicant
-       chmod +x *.sh
+       chmod +x ${DEFAULTPATH}/*.sh
        ;;
     7) banner "   Update dynamic Configs"
        greenbanner "     Update ${SYSCONF}, Enable _forward and .forward"
