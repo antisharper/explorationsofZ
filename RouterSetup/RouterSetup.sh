@@ -216,9 +216,12 @@ EOF
        systemctl unmask hostapd
        systemctl enable hostapd
        systemctl restart hostapd
-       sleep 5
+       greenbanner "Waiting for hostapd to complete configuration."
+       sleep 10
        ;;
     23) banner "Verify $LOCALROUTERWLAN has IP $LOCALROUTERIP"
+        continue_script_after_reboot
+        sync
         if ! ifconfig $LOCALROUTERWLAN | grep $LOCALROUTERIP >/dev/null; then
           alertbanner "!!!! Serious error while verifying service !!!! " 1>&2
           alertbanner "!!!! Check hardware and script !!!! " 1>&2
@@ -227,9 +230,10 @@ EOF
         LOCALWLANETHER=`ifconfig $LOCALROUTERWLAN | grep ether`
         #Wait until UPLINKWLAN shows up || LOCALROUTERWLAN ethernet changes (udev assign UPLINKWLAN over LOCALROUTERWLAN ??)
         while [[ `ifconfig $LOCALROUTERWLAN | grep ether` == "$LOCALWLANETHER" ]] && ! ifconfig $UPLINKWLAN &>/dev/null; do
-          alertbanner "   Please connect your USB WIFI" 1>&2
+          alertbanner "   Please connect your USB WIFI Device" 1>&2
           sleep 5
         done
+
         # Need an extra stablization sleep, Inital UPLINKWLAN insert blanks Ether field sometimes
         sleep 5
         ORIG_LOCALWLANETHER=$LOCALWLANETHER
