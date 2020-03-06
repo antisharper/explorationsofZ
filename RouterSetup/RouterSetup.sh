@@ -98,7 +98,7 @@ main() {
        ;;
     3) if [ "$(dirname ${CURRENTPROGRAM})" != "${DEFAULTPATH}" ]; then
           greenbanner "\t Copy from GIT Directory to HOME ${DEFAULTPATH}"
-          copy_with_backup $($dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
+          copy_with_backup $(dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
        fi
        chmod +x ${DEFAULTPATH}/*.sh
        ;;
