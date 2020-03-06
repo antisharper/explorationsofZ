@@ -1,3 +1,22 @@
+#!/bin/#!/usr/bin/env bash
+
+# functions-RouterSetup.sh
+
+banner() {
+  printf "\e[1m$@\e[0m\n"
+}
+
+alertbanner() {
+  printf "\e[1m\e[31m$@\e[0m\n" 1>&2
+}
+
+stepwisebanner() {
+  printf "\n\e[33mPHASE $@\e[0m\n\n"
+}
+
+greenbanner() {
+  printf "\e[1m\e[32m$@\e[0m\n"
+}
 disable_default_route_ethernet() {
   route -n | grep -E '^0.0.0.0.*(eth|en)[0-9]' | awk '{print $NF}' | while read DADEVICE; do
     route del -net dev $DADEVICE &>/dev/null

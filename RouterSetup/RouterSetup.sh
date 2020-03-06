@@ -17,22 +17,6 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 output_file=""
 stepwise=0
 
-banner() {
-  printf "\e[1m$@\e[0m\n"
-}
-
-alertbanner() {
-  printf "\e[1m\e[31m$@\e[0m\n" 1>&2
-}
-
-stepwisebanner() {
-  printf "\n\e[33mPHASE $@\e[0m\n\n"
-}
-
-greenbanner() {
-  printf "\e[1m\e[32m$@\e[0m\n"
-}
-
 if [[ "${CURRENTPROGRAM}" =~ gz ]]; then CATIT=zcat; else CATIT=cat; fi
 eval "$CATIT $CURRENTPROGRAM" | sed -n '/^###$/,/^##$/p' | sed 's/^#*//'
 
@@ -58,7 +42,7 @@ PHASE=0
 
 if [ -e ${LASTPHASEFILE} ]; then
   PHASE=`cat $LASTPHASEFILE`
-  sed -i '/#ROUTERSETUP/d' ${BASHRC}
+  remove_install_script_from_bashrc
   stepwisebanner "$PHASE (Restarting)"
 fi
 
@@ -230,7 +214,7 @@ EOF
         LOCALWLANETHER=`ifconfig $LOCALROUTERWLAN | grep ether`
         #Wait until UPLINKWLAN shows up || LOCALROUTERWLAN ethernet changes (udev assign UPLINKWLAN over LOCALROUTERWLAN ??)
         while [[ `ifconfig $LOCALROUTERWLAN | grep ether` == "$LOCALWLANETHER" ]] && ! ifconfig $UPLINKWLAN &>/dev/null; do
-          alertbanner "   Please connect your USB WIFI Device" 1>&2
+          alertbanner "!!! Please connect your USB WIFI Device !!!" 1>&2
           sleep 5
         done
 
@@ -280,7 +264,7 @@ EOF
         greenbanner "\t Waiting until ${CHECKPACKETS} pass through ${UPLINKWLAN}"
         while [[ `ifconfig $UPLINKWLAN | awk '/RX packets/ {print $3}'` -lt 40 ]]; do
           UPLINKIP=$(get_outside_ip)
-          echo "\t\t\t OUTSIDE IP is $UPLINKIP"
+          printf "\t\t\t OUTSIDE IP is $UPLINKIP"
           iwconfig $UPLINKWLAN
           ifconfig $UPLINKWLAN
           sleep 5

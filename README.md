@@ -5,12 +5,12 @@ Based on https://www.raspberrypi.org/documentation/configuration/wireless/access
      and https://gist.github.com/dmytro/0606cb32e42fc0918466
 
 
-## Simple script taking a bare OS on Raspberry PI 0/3/4 to a fully working Wireless-to-Wireless Router/AP with OpenVPN.
+## Simple script taking a bare OS on Raspberry PI 0/3/4 to a fully working Wireless-to-Wireless Router/AP with OpenVPN Client.
 
 ### Using PI Zero and External USB 2.0 WiFi Adapter is easily capable of handling
- - 1080p video stream
- - RDP/NoMachine sessions to desktops
- - Mundane browsing/APP needs.
+- 1080p video stream
+- RDP/NoMachine sessions to desktops
+- Mundane browsing/APP needs.
 
 Currently no web/gui controls for status
 

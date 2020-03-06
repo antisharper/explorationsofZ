@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/#!/usr/bin/env bash
+
+# variables-RouterSetup.sh
+
 export REBOOTDELAY=10
 
 export DEFAULTUSER=pi
