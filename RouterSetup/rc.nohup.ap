@@ -1,6 +1,7 @@
 #!/bin/sh -e
 # NOHUP important AP Scripts
 
+nohup /homepi/down-ovpn.sh tun0
 nohup /home/pi/run-openvpn.sh $(ls -1tr /home/pi/*.ovpn | head -1) >/dev/shm/run-openvpn.out 2>&1 &
 nohup /home/pi/run-checkConnect.sh "" "" ${CHECKURL} >/dev/shm/run-checkConnect.out 2>&1 &
 nohup /home/pi/run-ledpattern.sh >/dev/shm/run-ledpattern.out 2>&1 &
