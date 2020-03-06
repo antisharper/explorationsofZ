@@ -8,8 +8,8 @@
 
 export CURRENTPROGRAM=$0
 
-source ./variables-$(basename $CURRENTPROGRAM)
-source ./functions-$(basename $CURRENTPROGRAM)
+source $(dirname $CURRENTPROGRAM)/variables-$(basename $CURRENTPROGRAM)
+source $(dirname $CURRENTPROGRAM)/functions-$(basename $CURRENTPROGRAM)
 
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
