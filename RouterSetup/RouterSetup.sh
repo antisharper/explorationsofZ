@@ -289,7 +289,7 @@ EOF
         banner "Please open on a phone or other device and connect them to the LOCAL AP"
         grep -Ei '^(ssid=|wpa_passphrase=)' ${HOSTAPDCONF} | xargs echo "    "
         ;;
-    *) PHASE=-2; REBOOT=0 ;;
+    *) remove_install_script_from_bashrc; PHASE=-2; REBOOT=0 ;;
     esac
 
     if (( STEPWISE )); then greenbanner "--- STEPWISE COMPLETED PHASE $PHASE ----\n"; fi
