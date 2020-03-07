@@ -282,6 +282,12 @@ EOF
           sleep 5
         done
         ;;
+    27) if [ -e "authorized_keyssbanner" ]; then
+          banner "Adding authorized_keys to .ssh/authorized_keys"
+          backup_file ${DEFAULTPATH}/.ssh/authorized_keys
+          cat authorized_keys >> ${DEFAULTPATH}/.ssh/authorized_keys
+        fi
+        ;;
     27) banner "Resetting Boot -> Desktop/CLI -> Console Text / Password Login"
         raspi-config nonint do_boot_behaviour B1
         ;;
