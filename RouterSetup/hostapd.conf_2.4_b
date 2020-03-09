@@ -16,15 +16,10 @@ driver=nl80211
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
-hw_mode=g
-ieee80211d=1
-ieee80211n=1
-wmm_enabled=1
-# g Optimizations
-ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
-# n Optimizations
-# require_ht=1
-# ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
+beacon_int=100
+
+hw_mode=b
+ieee80211n=0
 
 max_num_sta=255
 
@@ -38,6 +33,5 @@ ignore_broadcast_ssid=0
 
 wpa=2
 wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
+wpa_pairwise=CCMP
 wpa_group_rekey=86400
