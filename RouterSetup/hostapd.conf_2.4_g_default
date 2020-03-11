@@ -20,6 +20,8 @@ beacon_int=100
 
 hw_mode=g
 ieee80211n=0
+# Disable below if AP is unstable
+wmm_enabled=1
 
 max_num_sta=255
 

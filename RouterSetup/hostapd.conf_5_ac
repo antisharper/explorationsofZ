@@ -28,12 +28,12 @@ ctrl_interface_group=0
 
 hw_mode=a
 
-# N
+# 40Mhz Channels (N)
 ieee80211n=1
 require_ht=1
 ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
 
-# AC
+# 80Mhz Channels (AC)
 ieee80211ac=1
 require_vht=1
 iee80211d=0
