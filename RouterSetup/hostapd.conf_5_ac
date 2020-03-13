@@ -34,8 +34,8 @@ ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
 # 80Mhz Channels (AC)
 ieee80211ac=1
 require_vht=1
-iee80211d=0
-iee80211h=0
+ieee80211d=0
+ieee80211h=0
 vht_capab=[MAX-AMSDU-3839][SHORT-GI-80]
 vht_oper_chwidth=1
 
