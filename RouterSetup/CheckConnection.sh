@@ -1,15 +1,37 @@
 #!/bin/bash
 
-LOCALDEVICE=${1:-wlan1}
-TUNDEVICE=${2:-tun0}
-CHECKURL=${3:-https://api.ipify.org:443}
-HOLDFILE=${4:-/dev/shm/tracerouteCheck.txt}
+LOCALDEVICE=wlan1
+TUNDEVICE=tun0
+CHECKURL=https://api.ipify.org:443
+HOLDFILE=/dev/shm/tracerouteCheck.txt
+
+while getopts "l:t:c:h:" opt; do
+  case "$opt" in
+    h)  HOLDFILE=$OPTARG
+        ;;
+    c)  CHECKURL=$OPTARG
+        if [[ "$CHECKURL" !~ ":" ]]; then
+          if [[ "$CHECKURL" =~ "https" ]]; then
+            CHECKURL="${CHECKURL}:443"
+          else
+            CHECKURL="${CHECKURL}:80"
+          fi
+        fi
+        ;;
+    t)  TUNDEVICE=$OPTARG
+        ;;
+    l)  LOCALDEVICE=$OPTARG
+        ;;
+  esac
+done
+shift $((OPTIND-1))
+
 > $HOLDFILE
 
 PORT=`echo $CHECKURL | sed 's/^.*\/\///'| cut -d: -f2`
 SITE=`echo $CHECKURL | sed 's/^.*\/\///'| cut -d: -f1`
 
-# Cant find WLAN, RETURNVAL=0 
+# Cant find WLAN, RETURNVAL=0
 if ! ifconfig $LOCALDEVICE >/dev/null 2>&1; then
   echo 0
   exit 1
@@ -51,4 +73,3 @@ echo $RETURNVAL
 # 3 - Fast Blink  < No Internet + VPN
 # 4 - Long Pulse  < Internet + NO VPN
 # 5 - ON    < Internet + VPN
-
