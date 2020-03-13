@@ -200,7 +200,7 @@ build_localrouterap() {
     export LOCALROUTERCHANNEL=-1
     while [ $LOCALROUTERCHANNEL -eq -1 ]; do
       echo "                       For $RADIORATE radio, available channels are $VIEWCHANNELS"
-      read -p "                     LOCALROUTER AccessPoint Channel? [Default: $DEFAULTCHANNEL (0 - Use Channel with least interference)] " INLOCALROUTERCHANNEL
+      read -p "                     LOCALROUTER AccessPoint Channel? [Default: $DEFAULTCHANNEL] " INLOCALROUTERCHANNEL
 
       export INLOCALROUTERCHANNEL=${INLOCALROUTERCHANNEL:-$DEFAULTCHANNEL}
       if echo " ${POSSIBLECHANNELS[@]} " | grep " $INLOCALROUTERCHANNEL " &>/dev/null; then

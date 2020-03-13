@@ -18,6 +18,7 @@ ctrl_interface_group=0
 
 beacon_int=100
 
+# 40Mhz Channels (N)
 hw_mode=g
 ieee80211n=1
 require_ht=1

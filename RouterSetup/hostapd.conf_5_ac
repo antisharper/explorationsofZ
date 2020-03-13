@@ -23,8 +23,8 @@ vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
-hw_mode=aiw wlan1
-
+hw_mode=a
+wwm_enabled=1
 
 # 40Mhz Channels (N)
 ieee80211n=1
@@ -36,7 +36,7 @@ ieee80211ac=1
 require_vht=1
 ieee80211d=0
 ieee80211h=0
-vht_capab=[MAX-AMSDU-3839][SHORT-GI-80]
+vht_capab=[MAX-AMSDU-3839][SHORT-GI-80][SU-BEAMFORMEE]
 vht_oper_chwidth=1
 
 max_num_sta=255

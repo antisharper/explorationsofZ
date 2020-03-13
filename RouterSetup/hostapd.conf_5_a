@@ -20,7 +20,8 @@ ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
 hw_mode=a
-ieee80211n=0
+ieee80211n=1
+wwm_enabled=1
 
 max_num_sta=255
 
