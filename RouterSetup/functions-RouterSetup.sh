@@ -206,7 +206,7 @@ build_localrouterap() {
       fi
     done
 
-    if [ "$RADIORATE" == "5GHz" ] AND [[ "$SOURCELOCALROUTERFILE" =~ "_ac" ]]; then
+    if [][ "$RADIORATE" == "5GHz" ]] && [[ "$SOURCELOCALROUTERFILE" =~ "_ac" ]]; then
       POSSIBLEVOCF=( 42 58 106 122 138 155 )
       DEFAULTVOCF=42
 
