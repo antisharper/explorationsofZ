@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  WLAN=`ifconfig -a | grep -E ^wl | awk '{print $1}' | sed 's/://'`
+  WLAN=`ifconfig -a | grep -E ^wl | awk '{print $1}' | sed 's/://' | sort | head -1`
 else
   WLAN=$1
 fi
 iwlist $WLAN scan | mawk '
-function banner() { 
+function banner() {
   print "0 ESSID,ADDRESS,PROTOCOL,FREQUENCY,CHANNEL,ENCRYPT,BITRATE,QUALITY,SIGNAL"
 }
 function PRINTIT() {
@@ -14,7 +14,7 @@ function PRINTIT() {
     print ESSID "," ADDRESS "," PROTOCOL "," FREQUENCY "," CHANNEL "," ENCRYPT "," BITRATE "," QUALITY "," SIGNAL
 }
 function OUTARRAY(A,name) {
-  for ( aval in A ) { print name": "aval"="A[aval] };   
+  for ( aval in A ) { print name": "aval"="A[aval] };
 }
 
 BEGIN { banner() }
