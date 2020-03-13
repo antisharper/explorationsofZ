@@ -11,7 +11,7 @@ while getopts "l:t:c:h:" opt; do
         ;;
     c)  CHECKURL=$OPTARG
         if ! [[ "$CHECKURL" =~ ":" ]]; then
-          if [[ "$CHECKURL" ="https" ]]; then
+          if [[ "$CHECKURL" = "https" ]]; then
             CHECKURL="${CHECKURL}:443"
           else
             CHECKURL="${CHECKURL}:80"
