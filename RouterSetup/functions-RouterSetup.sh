@@ -161,6 +161,10 @@ build_uplink_wireless_connection() {
   fi
 }
 
+find_phy0_channels() {
+  return $( iw phy phy0 info | grep \* | grep MHz | grep -vE '(no|disabled)' | grep \*\ $1 | sed 's/^,*\[\([0-9]*\)\].*$/\1/' )
+}
+
 build_localrouterap() {
   echo "    Setting up LOCALROUTER Wifi AccessPoint information"
   read -p "    LOCALROUTER AccessPoint Name? [Default:TestZone] " INLOCALROUTERNAME
@@ -178,12 +182,12 @@ build_localrouterap() {
 
     echo "                     Select Access Point's Channel"
     if echo $SOURCELOCALROUTERFILE | grep -E '(2.4)' &>/dev/null; then
-      POSSIBLECHANNELS=( $(seq 1 11) )
+      POSSIBLECHANNELS=( $(find_phy0_channels 2) )
       VIEWCHANNELS="1 through 11"
       DEFAULTCHANNEL=7
       RADIORATE="2.4GHz"
     else
-      POSSIBLECHANNELS=( 0 36 44 52 60 100 108 116 124 132 140 149 157 184 192 )
+      POSSIBLECHANNELS=( $(find_phy0_channels 5) )
       VIEWCHANNELS=${POSSIBLECHANNELS[@]}
       DEFAULTCHANNEL=36
       RADIORATE="5GHz"

@@ -11,9 +11,6 @@ channel=${LOCALROUTERCHANNEL}
 
 driver=nl80211
 
-# channel= one of:
-# 36 44 52 60 100 108 116 124 132 140 149 157 184 192
-
 vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
 # vht_oper_centr_freq_seg0_idx= one of:
 # 42 58 106 122 138 155
@@ -26,7 +23,8 @@ vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
-hw_mode=a
+hw_mode=aiw wlan1
+
 
 # 40Mhz Channels (N)
 ieee80211n=1
