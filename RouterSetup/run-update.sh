@@ -1,8 +1,17 @@
 #!/bin/bash
 
-PORT=${1:2222}
-WAITTIME=${2:-15}
-UPDATEACCOUNT=$3
+PORT=2222
+WAITTIME=-15
+
+while getopts "p:w:" opt; do
+    case "$opt" in
+    p)  PORT=$OPTARG
+        ;;
+    w)  WAITTIME=$OPTARG
+        ;;
+    esac
+done
+shift $((OPTIND-1))
 
 if [ ! -z ${UPDATEACCOUNT} ]; then
   while (true); do

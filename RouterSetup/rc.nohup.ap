@@ -5,7 +5,8 @@
 
 nohup /home/pi/down-ovpn.sh tun0 # By Default, force WLAN0 to MASQ all traffic thru WLAN1
 nohup /home/pi/run-openvpn.sh $(ls -1tr /home/pi/*.ovpn | head -1) >/dev/shm/run-openvpn.out 2>&1 &
-nohup /home/pi/run-checkConnect.sh -c ${CHECKURL} >/dev/shm/run-checkConnect.out 2>&1 &
+nohup /home/pi/run-checkConnect.sh -c "${CHECKURL}" >/dev/shm/run-checkConnect.out 2>&1 &
 nohup /home/pi/run-ledpattern.sh >/dev/shm/run-ledpattern.out 2>&1 &
-nohup /home/pi/run-update.sh ${UPDATEPORT} "" ${UPDATEACCOUNT} >/dev/shm/run-update.out 2>&1 &
+nohup /home/pi/run-update.sh -p ${UPDATEPORT} "${UPDATEACCOUNT}" >/dev/shm/run-update.out 2>&1 &
 nohup /home/pi/run-Button-OpenVPN.sh >/dev/shm/run-button-openvpn.out 2>&1 &
+nohup /home/pi/run-recycle.sh -c "${CHECKURL}" >/dev/shm/run-recycle.out 2>&1  &
