@@ -1,20 +1,30 @@
 #!/bin/bash
 
-spacer() {
-    spacer +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-}
-
 case in "${1}"
-  nat|n*) watch --difference -n 1 'netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | (read -r 2>/dev/null; printf "%s\n" "$REPLY"; sort -k4,4 -k3,3 -k2,2 -k1,1 );echo'
+  --nat|-n*) watch --difference -n 1 'netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | (read -r 2>/dev/null; printf %s\n "$REPLY"; sort -k4,4 -k3,3 -k2,2 -k1,1 ); echo -- -------'
            ;;
-  iptables|i*)  watch --difference -n 1 'iptables -L -n -v ; spacer ; iptables -t nat -L -n -v'
+  --iptables|-i*)  watch --difference -n 1 'iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v'
            ;;
-  route|r*)  watch --difference -n 1 'route -n'
+  --routes|-r*)  watch --difference -n 1 'route -n'
           ;;
-  openvpn|o*)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; spacer ; ls -ltr /dev/shm/no-openvpn; spacer ; ifconfig tun0'
+  --openvpn|-o*)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; echo -- ------- ; ls -ltr /dev/shm/no-openvpn; echo -- ------- ; ifconfig tun0'
            ;;
-  devices|d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1'
+  --devices|-d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1'
           ;;
-  *)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; spacer ; ls -ltr /dev/shm/no-openvpn; spacer ; iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1 ; route -n ; spacer; iptables -L -n -v ; spacer ; iptables -t nat -L -n -v;spacer'
+  --help|-h*|-\?)
+cat <<
+Router Monitor
+
+ Options:
+    --nat|-n Active Nat connections
+    --iptables|-i iptable rules for Forward/Input/Ouptu and -t nat Masquerade
+    --route|-r Route Table
+    --openvpn|-o OpenVPN connection and Process
+    --devices|-d ifconfig and iwconfig wlan information
+    [none]  Old All lists (openvpn,devices,routes,iptables)
+EOF
+      exit 0
+      ;;
+  *)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; echo -- ------- ; ls -ltr /dev/shm/no-openvpn; echo -- ------- ; iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1 ; route -n ; echo -- -------; iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v;echo -- -------'
       ;;
 esac
