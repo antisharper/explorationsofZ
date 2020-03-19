@@ -19,7 +19,7 @@ case "${1:-all}" in
            ;;
   devices|d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1'
           ;;
-  --help|-h*|-\?)
+  help|h*|\?)
 cat <<EOF
 Router Monitor
 
