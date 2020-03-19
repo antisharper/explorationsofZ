@@ -24,12 +24,12 @@ current_secs() {
 }
 echo "Init CHECKURL:$CHECKURL WAITTIME:$WAITTIME RECHECKTIME=$RECHECKTIME"
 
-LASTGOOD=current_secs
+LASTGOOD=$(current_secs)
 while (true); do
   CURRENTIP=$(curl -s ${CHECKURL})
 
   if [ -z "$CURRENTIP" ]; then
-    MISSEDTIME=(( $LASTGOOD-current_secs ))
+    MISSEDTIME=$[LASTGOOD-$(current_secs)]
     echo "`date +%Y%m%d-%H%M%S` - No Internet IP ($MISSEDTIME secs)"
     if (( $MISSEDTIME > $WAITTIME )); then
       echo "!!!!! Too many missed IP Checks.... Rebooting !!!!!" >&2
@@ -40,7 +40,7 @@ while (true); do
       fi
     fi
   else
-    LASTGOOD=current_secs
+    LASTGOOD=$(current_secs)
   fi
 
   sleep $RECHECKTIME
