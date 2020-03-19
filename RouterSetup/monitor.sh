@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check we're running as ROOT
+if [[ $EUID -ne 0 ]]; then
+   alertbanner "!!!! This script must be run as root !!!!"
+   exit 1
+fi
+
 case "${1:-all}" in
   all)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; echo -- ------- ; ls -ltr /dev/shm/no-openvpn; echo -- ------- ; iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1 ; route -n ; echo -- -------; iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v;echo -- -------'
       ;;
@@ -14,7 +20,6 @@ case "${1:-all}" in
   devices|d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1'
           ;;
   --help|-h*|-\?)
-  *)
 cat <<EOF
 Router Monitor
 
@@ -28,5 +33,4 @@ Router Monitor
 EOF
       exit 0
       ;;
-
 esac
