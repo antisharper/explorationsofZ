@@ -26,7 +26,7 @@ echo "Init CHECKURL:$CHECKURL WAITTIME:$WAITTIME REBOOTTIME=$REBOOTTIME"
 
 LASTGOOD=$(current_secs)
 while (true); do
-  CURRENTIP=$(curl -s --connect-timeout 5 ${CHECKURL})
+  CURRENTIP=$(timeout 5 curl -s ${CHECKURL})
 
   if [ -z "$CURRENTIP" ]; then
     MISSEDTIME=$[$(current_secs)-LASTGOOD]

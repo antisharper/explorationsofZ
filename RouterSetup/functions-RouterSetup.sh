@@ -30,7 +30,7 @@ disable_default_route() {
 }
 
 get_outside_ip() {
-  curl -s ${CHECKURL}; echo
+  timeout 5 curl -s ${CHECKURL}; echo
 }
 
 backup_file() {
