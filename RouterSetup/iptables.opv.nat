@@ -10,6 +10,7 @@ COMMIT
 :INPUT ACCEPT [2:223]
 :OUTPUT ACCEPT [499:35626]
 :POSTROUTING ACCEPT [295:21240]
+-A POSTROUTING -o eth0 -j MASQUERADE
 -A POSTROUTING -o wlan0 -j MASQUERADE
 -A POSTROUTING -o tun0 -j MASQUERADE
 COMMIT
@@ -17,6 +18,8 @@ COMMIT
 :INPUT ACCEPT [6371:5141516]
 :FORWARD ACCEPT [8636:5241043]
 :OUTPUT ACCEPT [5686:1229516]
--A FORWARD -i wlan0 -o tun0 -m conntrack --ctstate NEW -j ACCEPT
--A FORWARD -i wlan0 -o wlan1 -m conntrack --ctstate NEW -j REJECT --reject-with icmp-port-unreachable
+-A FORWARD -i eth0 -o tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i wlan0 -o tun0-m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i wlan0 -o wlan1 -j ACCEPT
+-A FORWARD -i wlan0 -o eth0 -j ACCEPT
 COMMIT
