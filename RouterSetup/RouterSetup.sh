@@ -288,10 +288,10 @@ EOF
           cat authorized_keys >> ${DEFAULTPATH}/.ssh/authorized_keys
         fi
         ;;
-    27) banner "Resetting Boot -> Desktop/CLI -> Console Text / Password Login"
+    28) banner "Resetting Boot -> Desktop/CLI -> Console Text / Password Login"
         raspi-config nonint do_boot_behaviour B1
         ;;
-    28) banner "Router Configuration has been successfully completed and confirmed!"
+    29) banner "Router Configuration has been successfully completed and confirmed!"
         banner "Please open on a phone or other device and connect them to the LOCAL AP"
         grep -Ei '^(ssid=|wpa_passphrase=)' ${HOSTAPDCONF} | xargs echo "    "
         ;;
