@@ -115,7 +115,7 @@ main() {
        rm -rf "${DEFAULTPATH}/.ssh"
        printf "\n\n\n\n" | sudo -u pi ssh-keygen -t rsa -b 4096 -P ""
        ;;
-    9) banner "Denote UPDATE account"
+    9) banner "Where is the UPDATE account"
        read -p "  Please enter the USERNAME@SERVER for this routers UPDATE CONNECTION ([RETURN] if you do not want an update connection) " UPDATEACCOUNT
        if [[ ! -z "$UPDATEACCOUNT" ]]; then
          alertbanner "\t\t Remember to add ${DEFAULTPATH}/.ssh/id_rsa.pub into $INUPDATEACCOUNT:.ssh/authorized_keys to enable this function."

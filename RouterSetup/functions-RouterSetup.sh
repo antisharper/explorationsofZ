@@ -162,7 +162,7 @@ build_uplink_wireless_connection() {
 }
 
 find_phy0_channels() {
-  iw phy phy0 info | grep \* | grep MHz | grep -vE '(no|disabled)' | grep \*\ $1 | sed 's/^,*\[\([0-9]*\)\].*$/\1/'
+  iw phy phy0 info | grep \* | grep MHz | grep -vE '(no|disabled)' | grep \*\ $1 | sed 's/^.*\[\([0-9]*\)\].*$/\1/'
 }
 
 build_localrouterap() {
@@ -210,7 +210,7 @@ build_localrouterap() {
       fi
     done
 
-    if [ "$RADIORATE" == "5GHz" ]] && [[ "$SOURCELOCALROUTERFILE" =~ "_ac" ]]; then
+    if [[ "$RADIORATE" == "5GHz" ]] && [[ "$SOURCELOCALROUTERFILE" =~ "_ac" ]]; then
       POSSIBLEVOCF=( 42 58 106 122 138 155 )
       DEFAULTVOCF=42
 
