@@ -24,7 +24,7 @@ ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
 hw_mode=a
-wwm_enabled=1
+wmm_enabled=1
 
 # 40Mhz Channels (N)
 ieee80211n=1
