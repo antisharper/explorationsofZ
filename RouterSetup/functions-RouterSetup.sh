@@ -98,8 +98,10 @@ continue_script_after_reboot() {
 select_from_file_list_default_first() {
   NOMINALFILE=$1
   MATCHFILE=${2:-$(basename ${NOMINALFILE})}
+  REMOVEFILEMATCH=${3:-000000}
 
   ALLFILES=( $(dirname ${NOMINALFILE})/*${MATCHFILE}* )
+  ALLFILES=$( echo ${ALLFILES[@]/$REMOVEFILEMATCH) | sed 's/ /\n/g' | sort -u )
   DEFAULTFIRST=( $(echo "${ALLFILES[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) \
                 $(echo "${ALLFILES[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u))
 
@@ -162,7 +164,12 @@ build_uplink_wireless_connection() {
 }
 
 find_phy0_channels() {
-  iw phy phy0 info | grep \* | grep MHz | grep -vE '(no|disabled)' | grep \*\ $1 | sed 's/^.*\[\([0-9]*\)\].*$/\1/'
+  FREQBAND=${1:-2}
+  iw phy phy0 info | grep \* | grep MHz | grep -vE '(no|disabled)' | grep \*\ $FREQBAND | sed 's/^.*\[\([0-9]*\)\].*$/\1/'
+}
+
+find_phy0_band2() {
+  iw phy phy0 info | grep "Band 2"
 }
 
 build_localrouterap() {
@@ -172,7 +179,7 @@ build_localrouterap() {
   read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERPASSWORD
   export LOCALROUTERPASSWORD=${INLOCALROUTERPASSWORD:-ChangeMe}
 
-  select_from_file_list_default_first "${HOSTAPDCONF}"
+  select_from_file_list_default_first "${HOSTAPDCONF}" "" $(if find_phy0_band2 >/dev/null 2>&1; then echo "_5_ac"; else echo "") 
   SOURCELOCALROUTERFILE=${RETURNEDVAL}
 
   if [ -z ${SOURCELOCALROUTERFILE} ]; then
