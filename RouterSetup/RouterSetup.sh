@@ -209,6 +209,7 @@ EOF
         if ! ifconfig $LOCALROUTERWLAN | grep $LOCALROUTERIP >/dev/null; then
           alertbanner "!!!! Serious error while verifying service !!!! " 1>&2
           alertbanner "!!!! Check hardware and script !!!! " 1>&2
+          alertbanner "!!!! HOSTAPD.CONF should be checked using 'sudo hostapd_cli' and 'sudo journalctl -xe -u hostapd'  !!!! " 1>&2
           exit 2
         fi
         LOCALWLANETHER=`ifconfig $LOCALROUTERWLAN | grep ether`
