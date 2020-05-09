@@ -179,7 +179,7 @@ build_localrouterap() {
   read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERPASSWORD
   export LOCALROUTERPASSWORD=${INLOCALROUTERPASSWORD:-ChangeMe}
 
-  select_from_file_list_default_first "${HOSTAPDCONF}" "" $(if find_phy0_band2 >/dev/null 2>&1; then echo "_5_ac"; else echo ""; fi)
+  select_from_file_list_default_first "${HOSTAPDCONF}" "" $(if find_phy0_band2 >/dev/null 2>&1; then echo ""; else echo "_5_ac"; fi)
   SOURCELOCALROUTERFILE=${RETURNEDVAL}
 
   if [ -z ${SOURCELOCALROUTERFILE} ]; then
