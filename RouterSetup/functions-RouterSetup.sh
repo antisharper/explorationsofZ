@@ -185,7 +185,7 @@ build_localrouterap() {
   if [ -z ${SOURCELOCALROUTERFILE} ]; then
     return 0
   else
-    echo "                  Updating AccessPoint Configs $HOSTAPDCONF"
+    echo "                  Updating AccessPoint Configs $HOSTAPDCONF  (Src->$SOURCELOCALROUTERFILE)"
 
     echo "                     Select Access Point's Channel"
     if echo $SOURCELOCALROUTERFILE | grep -E '(2.4)' &>/dev/null; then
