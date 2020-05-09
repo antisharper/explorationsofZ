@@ -101,7 +101,7 @@ select_from_file_list_default_first() {
   REMOVEFILEMATCH=${3:-000000}
 
   ALLFILES=( $(dirname ${NOMINALFILE})/*${MATCHFILE}* )
-  ALLFILES=$( echo ${ALLFILES[@]/$REMOVEFILEMATCH) | sed 's/ /\n/g' | sort -u )
+  ALLFILES=( $( echo ${ALLFILES[@]/$REMOVEFILEMATCH} | sed 's/ /\n/g' | sort -u ) )
   DEFAULTFIRST=( $(echo "${ALLFILES[@]}" | sed 's/ /\n/g' | grep -i default | sort -u) \
                 $(echo "${ALLFILES[@]}" | sed 's/ /\n/g' | grep -vi default | sort -u))
 
@@ -179,7 +179,7 @@ build_localrouterap() {
   read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERPASSWORD
   export LOCALROUTERPASSWORD=${INLOCALROUTERPASSWORD:-ChangeMe}
 
-  select_from_file_list_default_first "${HOSTAPDCONF}" "" $(if find_phy0_band2 >/dev/null 2>&1; then echo "_5_ac"; else echo "") 
+  select_from_file_list_default_first "${HOSTAPDCONF}" "" $(if find_phy0_band2 >/dev/null 2>&1; then echo "_5_ac"; else echo ""; fi)
   SOURCELOCALROUTERFILE=${RETURNEDVAL}
 
   if [ -z ${SOURCELOCALROUTERFILE} ]; then
