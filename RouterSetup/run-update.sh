@@ -4,7 +4,7 @@ PORT=2222
 WAITTIME=15
 RUNASUSER=pi
 
-while getopts "p:w:u:a:" opt; do
+while getopts "p:w:u:r:" opt; do
     case "$opt" in
     p)  PORT=$OPTARG
         ;;
