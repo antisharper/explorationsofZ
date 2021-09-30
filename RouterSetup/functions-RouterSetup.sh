@@ -175,7 +175,7 @@ find_phy0_band2() {
 build_localrouterap() {
   echo "    Setting up LOCALROUTER Wifi AccessPoint information"
   read -p "    LOCALROUTER AccessPoint Name? [Default:TestZone] " INLOCALROUTERNAME
-  export LOCALROUTERNAME=${INlOCALROUTERNAME:-TestZone}
+  export LOCALROUTERNAME=${INLOCALROUTERNAME:-TestZone}
   read -p "    LOCALROUTER AccessPoint Password? [Default:ChangeMe] " INLOCALROUTERPASSWORD
   export LOCALROUTERPASSWORD=${INLOCALROUTERPASSWORD:-ChangeMe}
 
