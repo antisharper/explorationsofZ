@@ -100,6 +100,7 @@ main() {
          alertbanner " When you have an internet link, restart the router installation."
          exit 1
        fi
+       REBOOT=1
        ;;
     5) banner "Update Repos"
        apt-get update -y
