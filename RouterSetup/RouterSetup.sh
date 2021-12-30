@@ -103,7 +103,7 @@ main() {
        REBOOT=1
        ;;
     5) banner "Update Repos"
-       apt-get update -y
+       #apt-get update -y
        ;;
     6) banner "Upgrade current packges"
        apt-get dist-upgrade -y
