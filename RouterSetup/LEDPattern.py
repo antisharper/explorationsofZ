@@ -11,13 +11,14 @@ GPIO.setup(LEDPin, GPIO.OUT)
 ledState = False
 #Pattern: duty (turnon count), maxcount, sleeptime (for each count)
 switcher = {
-	0:  [11, 10, .25],
-	1:  [8, 10, .25],
-	2:  [6, 10, .25],
-	3:  [4, 10, .25],
-	4:  [2, 10, .25],
-	5:  [0, 10, .25]
+        0:  [0, 10, .25],
+        1:  [2, 10, .25],
+        2:  [4, 10, .25],
+        3:  [6, 10, .25],
+        4:  [8, 10, .25],
+        5:  [11, 10, 1]
 }
+
 
 lenswitcher=len(switcher)-1
 print "LEN: ",lenswitcher
