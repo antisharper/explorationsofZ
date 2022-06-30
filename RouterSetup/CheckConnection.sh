@@ -42,7 +42,7 @@ if ! ifconfig $LOCALDEVICE | grep "inet " >/dev/null 2>&1; then
   echo 1
   exit 1
 fi
-tail -F
+
 VPNGATEWAY=$(ifconfig $TUNDEVICE 2>/dev/null | awk '/inet / {print $2}' | sed 's/\.[^\.]*$/.1/')
 
 CURLINTERNETIP=$(timeout 5 curl -q $CHECKURL 2>/dev/null)
