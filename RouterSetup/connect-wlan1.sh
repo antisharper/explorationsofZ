@@ -13,4 +13,8 @@ DRIVERPATH=`cat $OLDWLANDRIVER| head -2 | tail -1`
 REOPENVPN=`cat $OLDWLANDRIVER| head -3 | tail -1`
 rm $OLDWLANDRIVER
 echo -n $DRIVERPATH | tee $USBPATH/$USBDRIVER/bind >/dev/null 2>&1
-if [ ! -z "$REOPENVPN" ]; then ~pi/connect-openvpn.sh; fi
+if [ -z "$1" ]; then 
+  if [ ! -z "$REOPENVPN" ]; then ~pi/connect-openvpn.sh; fi
+else
+  echo "..... Skipping OPENVPN CHECK...."
+fi
