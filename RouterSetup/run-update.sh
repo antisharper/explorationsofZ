@@ -1,7 +1,7 @@
-#!/bin/bash
+!/bin/bash
 
 PORT=2222
-WAITTIME=15
+WAITTIME=120
 RUNASUSER=pi
 
 while getopts "p:w:u:r:" opt; do
@@ -24,14 +24,14 @@ if [ ! -z ${UPDATEACCOUNT} ]; then
     #sudo -u $RUNASUSER ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -N -R ${PORT}:localhost:22 ${UPDATEACCOUNT}
     sudo -u $RUNASUSER \
       ssh -g -C \
-	-R ${PORT}:localhost:22 \
-	-o ConnectTimeout=15 \
-	-o ExitOnForwardFailure=yes
-	-o BatchMode=yes \
+        -R ${PORT}:localhost:22 \
+        -o ConnectTimeout=15 \
+        -o ExitOnForwardFailure=yes \
+        -o BatchMode=yes \
         -o ServerAliveCountMax=3 \
-        -o ServerAliveInterval=15
-        -o StrictHostKeyChecking=no
-	${UPDATEACCOUNT} sleep 1800
+        -o ServerAliveInterval=15 \
+        -o StrictHostKeyChecking=no \
+        ${UPDATEACCOUNT} sleep 1800
       echo ---- "Connection failed ... Retrying in $WAITTIME seconds" --- PID:$$ --- `date`
     sleep $WAITTIME
   done
