@@ -7,7 +7,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 case "${1:-all}" in
-  all)  watch --difference -n 1 'uptime; echo -- ------; ps -ef | grep -v grep | grep openvpn; ls -ltr /dev/shm/no-openvpn 2>/dev/null; echo -- ------- ; iwconfig; echo -- ------- ;ifconfig tun0; ifconfig wlan0; ifconfig wlan1 ; echo -- -------; route -n ; echo -- -------; iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v;echo -- ------- ; netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | (read -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3 -k2,2 -k1,1 ) '
+  all)  watch --difference -n 1 'uptime; echo -- ------; ps -ef | grep -v grep | grep openvpn; ls -ltr /dev/shm/no-openvpn 2>/dev/null; echo -- ------- ; iwconfig; echo -- ------- ;ifconfig tun0; sudo hostapd_cli -i wlan0 status | grep ^ssid | sed 's/.*=//'; ifconfig wlan0; ifconfig wlan1 ; echo -- -------; route -n ; echo -- -------; iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v;echo -- ------- ; netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | (read -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3 -k2,2 -k1,1 ) '
       ;;
   nat|n*) watch --difference -n 1 'netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | (read -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3 -k2,2 -k1,1 ); echo -- -------'
            ;;
@@ -17,7 +17,7 @@ case "${1:-all}" in
           ;;
   openvpn|o*)  watch --difference -n 1 'ps -ef | grep -v grep | grep openvpn; echo -- ------- ; ls -ltr /dev/shm/no-openvpn; echo -- ------- ; ifconfig tun0'
            ;;
-  devices|d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; ifconfig wlan0; ifconfig wlan1'
+  devices|d*)  watch --difference -n 1 'iwconfig; ifconfig tun0; sudo hostapd_cli -i wlan0 status | grep ^ssid | sed 's/.*=//'; ifconfig wlan0; ifconfig wlan1'
           ;;
   help|h*|\?)
 cat <<EOF
