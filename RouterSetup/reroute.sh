@@ -3,7 +3,7 @@
 HOGSFILE=/dev/shm/hogs.out
 ROUTESNEW=/dev/shm/routelist.new
 ROUTESFOUND=/dev/shm/routelist.FOUND
-DISABLEFILE=/dev/shm/no-reoute
+DISABLEFILE=/dev/shm/no-reroute
 
 BWLIMIT=10
 ERASELIMIT=10
