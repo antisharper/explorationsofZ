@@ -1,0 +1,5 @@
+Down Options: tun0
+iptables: Permission denied (you must be root).
+iptables: Permission denied (you must be root).
+iptables-restore: line 8 failed
+Down Options: tun0
