@@ -5,7 +5,7 @@ ROUTESNEW=/dev/shm/routelist.new
 ROUTESFOUND=/dev/shm/routelist.FOUND
 DISABLEFILE=/dev/shm/no-reroute
 
-BWLIMIT=10
+BWLIMIT=15
 ERASELIMIT=10
 HOGSDELAY=10
 HOGSSAMPLES=1
@@ -88,7 +88,7 @@ while (true); do
 				cat $ROUTESNEW | while read NEWROUTE; do 
 					if ! ip route | grep "$NEWROUTE " &>/dev/null; then 
 						echo `date` -----  Didnot find $NEWROUTE... Adding it to $UPLINK
-						if [ -x $DISABLEFILE ]; then 
+						if [ -e $DISABLEFILE ]; then 
 							echo `date` --- \!\!\!\! DISABLED - NO REROUTING
 						else
 							sudo ip route add $NEWROUTE via $UPLINK
@@ -107,7 +107,7 @@ while (true); do
 					#grep $FOUNDROUTE $HOGSFILE
 					if ! grep $FOUNDROUTE $HOGSFILE &>/dev/null; then 
 						echo `date` --------  Remove low BW route $FOUNDROUTE
-						if [ -x $DISABLEFILE ]; then 
+						if [ -e $DISABLEFILE ]; then 
 							echo `date` --- \!\!\!\! DISABLED - NO REROUTING
 						else
 							sudo ip route del $FOUNDROUTE
