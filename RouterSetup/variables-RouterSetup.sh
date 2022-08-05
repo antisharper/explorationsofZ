@@ -44,7 +44,7 @@ export CONNECTOPENVPN=${DEFAULTPATH}/connect-openvpn.sh
 
 export RUNUPDATE=${DEFAULTPATH}/run-update.sh
 
-export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero)
+export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero git nethogs)
 
 export CHECKURL=https://api.ipify.org
 
