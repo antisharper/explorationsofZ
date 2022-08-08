@@ -20,13 +20,23 @@ stepwise=0
 if [[ "${CURRENTPROGRAM}" =~ gz ]]; then CATIT=zcat; else CATIT=cat; fi
 eval "$CATIT $CURRENTPROGRAM" | sed -n '/^###$/,/^##$/p' | sed 's/^#*//'
 
-while getopts "sd:" opt; do
+while getopts "sd:h" opt; do
     case "$opt" in
     s)  STEPWISE=1
         ;;
     d)  STEPWISE=1
         echo $OPTARG > ${LASTPHASEFILE}
         ;;
+    h) cat <<EOF
+Raspberry PI Wlan to wlan Router By Stuart Harper V0.35  2022-08-08
+ $0 [-s|-d #|-h]
+ -d #   -- Enable Debug Mode beginning with Installation Phase #
+ -s     -- Single Step Through next Installation Phase
+ -h     -- This Text
+ EOF
+ 				exit 0
+ 				;; 
+    ;;
     esac
 done
 shift $((OPTIND-1))

@@ -2,18 +2,14 @@
 #
 # NOHUP important AP Scripts
 #
-CHECKURL=https://api.ipify.org
-DEFAULTUSER=pi
-UPDATEPORT=12245
-UPDATEACCOUNT=connectivity@theharpers.homedns.org
 
 nohup /home/pi/down-ovpn.sh tun0 # By Default, force WLAN0 to MASQ all traffic thru WLAN1
-nohup /home/pi/run-openvpn.sh >/dev/shm/run-openvpn.out 2>&1 &
-nohup /home/pi/run-checkConnect.sh -c "${CHECKURL}" >/dev/shm/run-checkConnect.out 2>&1 &
-nohup /home/pi/run-ledpattern.sh >/dev/shm/run-ledpattern.out 2>&1 &
-nohup /home/pi/run-update.sh -r ${DEFAULTUSER} -p ${UPDATEPORT} -u "${UPDATEACCOUNT}" >/dev/shm/run-update.out 2>&1 &
-nohup /home/pi/run-Button-OpenVPN.sh >/dev/shm/run-button-openvpn.out 2>&1 &
-nohup /home/pi/run-recycle.sh -c "${CHECKURL}" >/dev/shm/run-recycle.out 2>&1  &
+nohup /home/pi/run-openvpn.sh &>/dev/shm/run-openvpn.out &
+nohup /home/pi/run-checkConnect.sh -c "${CHECKURL}" &>/dev/shm/run-checkConnect.out &
+nohup /home/pi/run-ledpattern.sh &>/dev/shm/run-ledpattern.out &
+nohup /home/pi/run-update.sh -r ${DEFAULTUSER} -p ${UPDATEPORT} -u "${UPDATEACCOUNT}" &>/dev/shm/run-update.out &
+nohup /home/pi/run-Button-OpenVPN.sh &>/dev/shm/run-button-openvpn.out &
+nohup /home/pi/run-recycle.sh -c "${CHECKURL}" &>/dev/shm/run-recycle.out &
 nohup /home/pi/run-reroute.sh &>/dev/shm/run-reroute.out &
 echo 0 | tee /sys/class/leds/led0/brightness
 
