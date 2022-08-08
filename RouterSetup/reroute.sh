@@ -94,7 +94,7 @@ while (true); do
 							sudo ip route add $NEWROUTE via $UPLINK
 						fi
 					else
-						echo `date` -----  $NEWROUTE aleady in reroute list
+						echo `date` -----  $NEWROUTE already in reroute list
 					fi
 				done
 			fi	
