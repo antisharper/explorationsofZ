@@ -22,21 +22,22 @@ eval "$CATIT $CURRENTPROGRAM" | sed -n '/^###$/,/^##$/p' | sed 's/^#*//'
 
 while getopts "sd:h" opt; do
     case "$opt" in
-    s)  STEPWISE=1
-        ;;
-    d)  STEPWISE=1
-        echo $OPTARG > ${LASTPHASEFILE}
-        ;;
+    s) STEPWISE=1
+       ;;
+    d) STEPWISE=1
+       echo $OPTARG > ${LASTPHASEFILE}
+       ;;
     h) cat <<EOF
-Raspberry PI Wlan to wlan Router By Stuart Harper V0.35  2022-08-08
- $0 [-s|-d #|-h]
- -d #   -- Enable Debug Mode beginning with Installation Phase #
- -s     -- Single Step Through next Installation Phase
- -h     -- This Text
- EOF
- 				exit 0
- 				;; 
-    ;;
+  Raspberry PI Wlan to wlan Router By Stuart Harper V0.35  2022-08-08
+    $0 [-s|-d #|-h]
+       -d #   -- Enable Debug Mode beginning with Installation Phase #
+       -s     -- Single Step Through next Installation Phase
+       -h     -- This Text
+EOF
+       exit 0
+       ;;
+    *) echo "Option \'$opt\' not understood." >&2
+       exit 1
     esac
 done
 shift $((OPTIND-1))
