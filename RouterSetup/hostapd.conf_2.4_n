@@ -21,8 +21,8 @@ beacon_int=100
 # 40Mhz Channels (N)
 hw_mode=g
 ieee80211n=1
-require_ht=1
-ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
+#require_ht=1
+#ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
 wmm_enabled=1
 
 max_num_sta=255

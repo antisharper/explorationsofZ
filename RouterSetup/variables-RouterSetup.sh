@@ -29,7 +29,7 @@ export UDEVRULESCONF=${ETCDIR}/udev/rules.d/99-com.rules
 
 export LOCALROUTERWLAN=wlan0
 export LOCALROUTERCHANNEL=7
-if [ ! -x ~/.LOCALROUTEROCTET ]; then echo LOCALROUTEROCTET=$[$RANDOM/256] > ~/.LOCALROUTEROCTET; fi
+if [ ! -e ~/.LOCALROUTEROCTET ]; then echo LOCALROUTEROCTET=$[$RANDOM/256] > ~/.LOCALROUTEROCTET; fi
 export LOCALROUTEROCTET=$(cat ~/.LOCALROUTEROCTET)
 export LOCALROUTERIP=192.168.${LOCALROUTEROCTET}.1
 export LOCALROUTERIPMASK=255.255.255.0
@@ -46,7 +46,7 @@ export CONNECTOPENVPN=${DEFAULTPATH}/connect-openvpn.sh
 
 export RUNUPDATE=${DEFAULTPATH}/run-update.sh
 
-export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc)
+export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc build-essential libssl-dev bison flex libncurses5-dev iptables)
 
 export CHECKURL=https://api.ipify.org
 
