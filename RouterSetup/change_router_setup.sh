@@ -51,6 +51,22 @@ if [ ! -z "$NEWHOST" ]; then
 	sudo sed -i '/127.0.1.1/s/^.*$/127.0.1.1 '$NEWHOST'/' /etc/hosts &>/dev/null
 fi
 
+if [ ! -z "$NEWCONNECTPORT" ]; then
+  echo Updating Connectionport to ${NEWCONNECTPORT}
+	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTPORT}' /' /home/pi/rc.nohup.ap
+	ps -ef | grep -v grep | grep "localhost:22" | awk '{print $2}' | sudo xargs kill -9
+	ps -ef | grep -v grep | grep "run-update" | awk '{print $2}' | sudo xargs kill -9
+	grep run-update rc.nohup.ap > /tmp/new-run.sh
+	sudo bash /tmp/new-run.sh
+	rm -rf /tmp/new-run.sh
+fi
+
+if [ ! -z "$NEWSSHHOSTKEY" ]; then
+  echo Updating AP Password to ${NEWAPPW}.1
+	sudo rm -r /etc/ssh/ssh*key
+	sudo dpkg-reconfigure openssh-server
+fi
+
 if [ ! -z "$NEWNETWORK" ]; then
 	echo Updating base network to ${NEWNETWORK}.1
 	sudo grep -RiE '192\.168\.[0-9]{,3}\.' /home/pi* /etc/* 2>/dev/null | grep -vE '192\.168\.[0|1]\.'  | grep -v '~' | grep -v :\# |  sed 's/:.*$//' | while read FILE; do echo --------------- $FILE; sudo sed -i '/^[^#]/s/192.168.[0-9]*\./'$NEWNETWORK'./g' $FILE; done
@@ -75,20 +91,4 @@ if [ ! -z "$NEWCHANNEL" ]; then
   echo Updating AP Channel to ${NEWCHANNEL}.1
 	sudo sed -i 's/^channel=.*/channel='$NEWCHANNEL'/g' /etc/hostapd/hostapd.conf
 	sudo systemctl restart hostapd
-fi
-
-if [ ! -z "$NEWCONNECTPORT" ]; then
-  echo Updating Connectionport to ${NEWCONNECTPORT}
-	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTPORT}' /' /home/pi/rc.nohup.ap
-	ps -ef | grep -v grep | grep "localhost:22" | awk '{print $2}' | sudo xargs kill -9
-	ps -ef | grep -v grep | grep "run-update" | awk '{print $2}' | sudo xargs kill -9
-	grep run-update rc.nohup.ap > /tmp/new-run.sh
-	sudo bash /tmp/new-run.sh
-	rm -rf /tmp/new-run.sh
-fi
-
-if [ ! -z "$NEWSSHHOSTKEY" ]; then
-  echo Updating AP Password to ${NEWAPPW}.1
-	sudo rm -r /etc/ssh/ssh*key
-	sudo dpkg-reconfigure openssh-server
 fi
