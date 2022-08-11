@@ -6,23 +6,25 @@ NEWAP=
 NEWAPPW=
 NEWCONNECTPORT=
 NEWSSHHOSTKEY=
+NEWCHANNEL=
 
 if [ -z "$1" ]; then
 	cat <<EOF
-	$0 [-h Host_Name|-n Network_Octet#|-a AP_NAME|-p AP_PASSWORD|-c Remote_Port#|-k]
+$0 [-h Host_Name|-n Network_Octet#|-a AP_NAME|-p AP_PASSWORD|-c Remote_Port#|-b AP Channel#|-k]
 	
 	-h new_host_name   -- New Host Name for This Router
 	-n new_3rd_octect# -- New 3rd Octect 192.168.XX.1 for Router Access Point Network
 	-a new_ap_name     -- New Name for Router Access Point
 	-p new_password    -- New Access Point Password
 	-c New_port#       -- New Remote Connection Port for Router for Updates
+  -b New AP Channel# -- New Acce4ss Point Broadcast Channel # (1-11 bgn|other# a or ax)
 	-k                 -- Rebuild Routers SSH Host Keys
 EOF
 
 	exit 0
 fi
 
-while getopts "h:n:a:p:c:k" opt; do
+while getopts "h:n:a:p:c:b:k" opt; do
   case "$opt" in
     h)  NEWHOST=$OPTARG
         ;;
@@ -34,6 +36,8 @@ while getopts "h:n:a:p:c:k" opt; do
         ;;
     c)  NEWCONNECTPORT=$OPTARG
         ;;
+    b)  NEWCHANNEL=$OPTARG
+    		;;
     k)  NEWSSHHOSTKEY=1
     ;;
   esac
@@ -43,13 +47,15 @@ shift $((OPTIND-1))
 if [ ! -z "$NEWHOST" ]; then
   echo Updating Hostname to $NEWHOST
 	sudo hostname $NEWHOST
-	sudo sed -i '/127.0.1.1/s/^.*/127.0.1.1 ;'$NEWHOST'/' /etc/hosts &>/dev/null
+	echo $NEWHOST| sudo tee /etc/hostname &>/dev/null
+	sudo sed -i '/127.0.1.1/s/^.*$/127.0.1.1 '$NEWHOST'/' /etc/hosts &>/dev/null
 fi
 
 if [ ! -z "$NEWNETWORK" ]; then
 	echo Updating base network to ${NEWNETWORK}.1
 	sudo grep -RiE '192\.168\.[0-9]{,3}\.' /home/pi* /etc/* 2>/dev/null | grep -vE '192\.168\.[0|1]\.'  | grep -v '~' | grep -v :\# |  sed 's/:.*$//' | while read FILE; do echo --------------- $FILE; sudo sed -i '/^[^#]/s/192.168.[0-9]*\./'$NEWNETWORK'./g' $FILE; done
-	sudo systemctl restart dhcp
+	sudo systemctl restart dhcpcd
+	sudo systemctl restart dnsmasq
 	sudo systemctl restart hostapd
 fi
 	
@@ -61,7 +67,13 @@ fi
 
 if [ ! -z "$NEWAPPW" ]; then
   echo Updating AP Password to ${NEWAPPW}.1
-	sudo sed -i 's/^wpa_password=.*/ssid='$NEWAPPW'/g' /etc/hostapd/hostapd.conf
+	sudo sed -i 's/^wpa_passphrase=.*/wpa_passphrase='$NEWAPPW'/g' /etc/hostapd/hostapd.conf
+	sudo systemctl restart hostapd
+fi
+
+if [ ! -z "$NEWCHANNEL" ]; then
+  echo Updating AP Channel to ${NEWCHANNEL}.1
+	sudo sed -i 's/^channel=.*/channel='$NEWCHANNEL'/g' /etc/hostapd/hostapd.conf
 	sudo systemctl restart hostapd
 fi
 
