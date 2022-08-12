@@ -34,7 +34,7 @@ while getopts "h:n:a:p:c:b:ks" opt; do
         ;;
     n)  if echo $OPTARG | grep -i R &>/dev/null; then
     			NEWNETWORK=127
-    			while [[ "$NEWNETWORK" =~ 127|128|137|97 ]]; do
+    			while [[ "$NEWNETWORK" =~ ^(127|128|137|97|0|1)$ ]]; do
     				NEWNETWORK=192.168.$(( ( RANDOM % 256 ) ))
     			done
     		else
@@ -47,7 +47,7 @@ while getopts "h:n:a:p:c:b:ks" opt; do
         ;;
     c)  if echo $OPTARG | grep -i R &>/dev/null; then
     			NEWCONNECTIONPORT=12245
-    			while [[ "$NEWCONNECTIONPORT" =~ 12245|12255 ]]; do
+    			while [[ "$NEWCONNECTIONPORT" =~ 12245|12255|12386 ]]; do
     				NEWCONNECTIONPORT=$(( ( RANDOM % 1000 ) + 12000))
     			done
     		else
