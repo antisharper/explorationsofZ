@@ -91,10 +91,10 @@ main() {
        greenbanner "\t Commit Config Changes"
        raspi-config nonint do_finish
        ;;
-    3) if [ "$(dirname ${CURRENTPROGRAM})" != "${DEFAULTPATH}" ]; then
-          greenbanner "\t Copy from GIT Directory to HOME ${DEFAULTPATH}"
-          copy_with_backup $(dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
-       fi
+    3) #if [ "$(dirname ${CURRENTPROGRAM})" != "${DEFAULTPATH}" ]; then
+          #greenbanner "\t Copy from GIT Directory to HOME ${DEFAULTPATH}"
+          #copy_with_backup $(dirname ${CURRENTPROGRAM})/* ${DEFAULTPATH}
+       #fi
        chmod +x ${DEFAULTPATH}/*.sh
        ;;
     4) banner "Checking for Internet Link"
