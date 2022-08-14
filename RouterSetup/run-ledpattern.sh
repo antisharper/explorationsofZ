@@ -3,5 +3,5 @@
 while (true); do 
   date
   python /home/pi/LEDPattern.py
-  sleep 5
+  sleep 15
 done

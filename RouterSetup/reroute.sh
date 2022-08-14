@@ -5,15 +5,20 @@ ROUTESNEW=/dev/shm/routelist.new
 ROUTESFOUND=/dev/shm/routelist.FOUND
 DISABLEFILE=/dev/shm/no-reroute
 
-BWLIMIT=15
-ERASELIMIT=10
-HOGSDELAY=10
+BWLIMIT=75
+ERASEBWLIMIT=10
+HOGSDELAY=15
 HOGSSAMPLES=1
-WAITTIME=30
+WAITTIME=$[120-(HOGSDELAY*HOGSSAMPLES)]
 MAXCOUNT=3
+INTERFACE=wlan1
+TUNDEV=tun0
 VPNHOST="theharpers.homedns.org"
 
-while getopts "b:s:d:w:m:e:g:hv" opt; do
+BOLDSTART="\e[1m"
+BOLDEND="\e[0m"
+
+while getopts "b:s:d:w:m:e:g:i:t:hv" opt; do
   case "$opt" in
     b)  BWLIMIT=$OPTARG
         ;;
@@ -29,22 +34,30 @@ while getopts "b:s:d:w:m:e:g:hv" opt; do
         ;;
     g)  VPNHOST=$OPTARG
         ;;
+    t)  INTERFACE=$OPTARG
+				;;
+    t)  TUNDEV=$OPTARG
+    		;;
     v)  DEBUG=1
         ;;
     h) cat <<EOF
- $0 [-b $BWLIMIT|-d $HOGSDELAY|-w $WAITTIME|-s $HOGSSAMPLES|-m $MAXCOUNT|-e $ERASEBWLIMIT]
+ $0 [-t TUNDEV|-b BWLIMIT|-e ERASEBWLIMIT|-w WAITTIME|-m MAXCOUNT|-d HOGSDELAY|-s HOGSSAMPLES|-g VPNHOST]
+ 
+       Reduce VPN traffic by automatically find heavily used IP (> BWLIMIT) over tunnel ($TUNDEV) and add routes directly over $INTERFACE gateway. 
+       When added route usage goes back below ERASEBWLIMIT, remove these routes so trafic goes over VPN again.
 
-	-b #    -- Bandwidth trigger over this amount add route to wlan for wlan1 (KBPS)
-	-e #    -- Erase route if bandwidth falls below this level (KBPS)
-        -w #    -- Time to wait between test cycles
-        -m #    -- Number of cycle to wait before trigger route removals
-        -d #    -- How long to sample traffic
-        -s #    -- Numbre of traffic samples	
-	-g fqdn -- VPN Service HostName
-	-v      -- Enable DEBUG Output
-	-h      -- This HELP message
+			 Program runs continuously.
 
-        Program runs continuously.
+  -t dev  -- Tunnel device ($TUNDEV)
+  -b #    -- Bandwidth trigger over this amount add route to wlan for $INTERFACE (KBPS) ($BWLIMIT)
+  -e #    -- Erase route if bandwidth falls below this level (KBPS) ($ERASEBWLIMIT)
+  -w #    -- Time to wait between test cycles ($WAITTIME)
+  -m #    -- Number of cycles to wait before forced route removals ($MAXCOUNT)
+  -d #    -- How long to sample traffic ($HOGSDELAY)
+  -s #    -- Numbre of traffic samples	($[HOGSSAMPLES + 1])
+  -g fqdn -- VPN Service HostName ($VPNHOST)
+  -v      -- Enable DEBUG Output
+  -h      -- This HELP message
 
 EOF
 	exit 1
@@ -55,18 +68,18 @@ shift $((OPTIND-1))
 
 if [ -z "$ERASEBWLIMIT" ]; then ERASEBWLIMIT=$BWLIMIT; fi
 
-if [ ! -z "$DEBUG" ]; then echo ERASEBWLIMIT:$ERASEBWLIMIT MAXCOUNT:$MAXCOUNT WAITTIME:$WAITTIME BWLIMIT:$BWLIMIT HOGSDELAY:$HOGSDELAY HOGSSAMPLES:$HOGSSAMPLES VPNHOST:$VPNHOST; fi
+echo `date` +++ BWLIMIT:$BWLIMIT ERASEBWLIMIT:$ERASEBWLIMIT WAITTIME:$WAITTIME MAXCOUNT:$MAXCOUNT HOGSDELAY:$HOGSDELAY HOGSSAMPLES:$HOGSSAMPLES VPNHOST:$VPNHOST TUNDEV:$TUNDEV INTERFACE:$INTERFACE
 
 COUNT=1
 
 while (true); do
-	TUNIPMATCH=$(ip route | grep -v link | awk '/tun0/ {print $(NF-2)}' | head -1 | sed 's/\.[^\.]$/\\\./')
+	TUNIPMATCH=$(ip route | grep -v link | awk '/'$TUNDEV'/ {print $(NF-2)}' | head -1 | sed 's/\.[^\.]$/\\\./')
 	LOCALNET=$(ip route | awk '/wlan0/ {print $(NF-2)}' | sed 's/\.[^\.]$/./')
-	#VPNGATEWAY=$(ip route | grep wlan1 | grep -v metric | head -1 | awk '{print $1}')
+	#VPNGATEWAY=$(ip route | grep $INTERFACE | grep -v metric | head -1 | awk '{print $1}')
 	VPNGATEWAY=$(host ${VPNHOST} | awk '{print $NF}')
-	UPLINK=$(ip route | grep wlan1 | grep -v metric | head -1 | awk '{print $3}')
+	UPLINK=$(ip route | grep $INTERFACE | grep default | head -1 | awk '{print $3}')
 	ULIPMATCH=$(echo $UPLINK | sed 's/\.[^\.]$/\\\./')
-	if [ ! -z "$DEBUG" ]; then echo LOCALNET:$LOCALNET TUNIPMATCH:$TUNIPMATCH VPNGATEWAY:$VPNGATEWAY UPLINK:$UPLINK ULIPMATCH:$ULIPMATCH; fi
+	if [ ! -z "$DEBUG" ]; then echo `date` LOCALNET:$LOCALNET TUNIPMATCH:$TUNIPMATCH VPNGATEWAY:$VPNGATEWAY UPLINK:$UPLINK ULIPMATCH:$ULIPMATCH; fi
 
 	if [ ! -z "$TUNIPMATCH" ]; then
 
@@ -79,7 +92,7 @@ while (true); do
 		if [ $COUNT -gt $MAXCOUNT ] || [ -s $HOGSFILE ]; then 
 			COUNT=1
 
-			echo `date` -- Process for Active Connections Limit:$ENABLEBWLIMIT $UPLIPMATCH $ROUTESNEW $LOCALNET
+			echo `date` -- Process for Active Connections Limit:$BWLIMIT UPLIPMATCH:$ULIPMATCH ROUTESNEW:$ROUTESNEW LOCALNET:$LOCALNET
 			rm $ROUTESNEW &>/dev/null
 			awk '$4 > '$BWLIMIT' && $1!~/'$ULIPMATCH'/ {print $2}' $HOGSFILE | grep -v "$LOCALNET" | sort -u > $ROUTESNEW 
 			if [ -s $ROUTESNEW ]; then
@@ -87,7 +100,7 @@ while (true); do
 				if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $ROUTESNEW; fi
 				cat $ROUTESNEW | while read NEWROUTE; do 
 					if ! ip route | grep "$NEWROUTE " &>/dev/null; then 
-						echo `date` -----  Didnot find $NEWROUTE... Adding it to $UPLINK
+						echo `date` -----  Didnot find wlan1 route to $NEWROUTE... Adding it to $UPLINK
 						if [ -e $DISABLEFILE ]; then 
 							echo `date` --- \!\!\!\! DISABLED - NO REROUTING
 						else

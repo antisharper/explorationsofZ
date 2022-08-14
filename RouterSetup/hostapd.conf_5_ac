@@ -1,6 +1,6 @@
 # Configuration Reference -> https://w1.fi/cgit/hostap/plain/hostapd/hostapd.conf
 #
-# Notes on AC: http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
+# https://raspberrypi.stackexchange.com/questions/91074/how-to-configure-hostapd-for-a-5ghz-network
 #
 
 ssid=${LOCALROUTERNAME}
@@ -8,12 +8,13 @@ wpa_passphrase=${LOCALROUTERPASSWORD}
 interface=${LOCALROUTERWLAN}
 country_code=${COUNTRY}
 channel=${LOCALROUTERCHANNEL}
+accept_mac_file=${HOSTAPDDIR}/hostapd-client-mac.accept
+deny_mac_file=${HOSTAPDDIR}/hostapd-client-mac.deny
+vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
+# vht_oper_centr_freq_seg0_idx= one of: CHANNEL + 6
+# 42 58 106 122 138 155
 
 driver=nl80211
-
-vht_oper_centr_freq_seg0_idx=${LOCALROUTERVHTOPERCENTRFREQ}
-# vht_oper_centr_freq_seg0_idx= one of:
-# 42 58 106 122 138 155
 
 #logger_syslog=0
 #logger_syslog_level=4
@@ -42,8 +43,6 @@ vht_oper_chwidth=1
 max_num_sta=255
 
 macaddr_acl=0
-accept_mac_file=${HOSTAPDDIR}/hostapd-client-mac.accept
-deny_mac_file=${HOSTAPDDIR}/hostapd-client-mac.deny
 
 auth_algs=1
 

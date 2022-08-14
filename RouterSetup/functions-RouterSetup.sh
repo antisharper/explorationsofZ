@@ -218,25 +218,7 @@ build_localrouterap() {
     done
 
     if [[ "$RADIORATE" == "5GHz" ]] && [[ "$SOURCELOCALROUTERFILE" =~ "_ac" ]]; then
-      POSSIBLEVOCF=( 42 58 106 122 138 155 )
-      DEFAULTVOCF=42
-
-      #Randomly pick a channel
-      DEFAULTVOCF=$(shuf -i 1-${#POSSIBLEVOCF[@]} -n 1); (( DEFAULTVOCF=DEFAULTVOCF-1 ))
-      DEFAULTVOCF=${POSSIBLEVOCF[$DEFAULTVOCF]}
-
-      LOCALROUTERVHTOPERCENTRFREQ=0
-      while [ $LOCALROUTERVHTOPERCENTRFREQ -eq 0 ]; do
-        echo "                       For AC wireless networks, please select the VHT Center Channel Frequency ${POSSIBLEVOCF[@]}"
-        read -p "                     LOCALROUTER AccessPoint Channel? [Default: $DEFAULTVOCF] " INLOCALROUTERVHTOPERCENTRFREQ
-
-        export INLOCALROUTERVHTOPERCENTRFREQ=${INLOCALROUTERVHTOPERCENTRFREQ:-$DEFAULTVOCF}
-        if echo " ${POSSIBLEVOCF[@]} " | grep " $INLOCALROUTERVHTOPERCENTRFREQ " &>/dev/null; then
-          export LOCALROUTERVHTOPERCENTRFREQ=$INLOCALROUTERVHTOPERCENTRFREQ
-        else
-          echo; echo "                       Sorry... value entered is not valid!"
-        fi
-      done
+        export LOCALROUTERVHTOPERCENTRFREQ=$[LOCALROUTERCHANNEL + 6]
     fi
 
     cp -p -v --backup=t ${SOURCELOCALROUTERFILE} ${HOSTAPDCONF}

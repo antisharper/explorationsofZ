@@ -46,7 +46,9 @@ export CONNECTOPENVPN=${DEFAULTPATH}/connect-openvpn.sh
 
 export RUNUPDATE=${DEFAULTPATH}/run-update.sh
 
-export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc build-essential libssl-dev bison flex libncurses5-dev iptables)
+export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git iptables traceroute)
+# If you need to compile drivers
+# export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc build-essential libssl-dev bison flex libncurses5-dev iptables traceroute)
 
 export CHECKURL=https://api.ipify.org
 
