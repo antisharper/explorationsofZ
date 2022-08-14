@@ -31,7 +31,7 @@ With 10000 AHr battery a PI Zero W can run for 2 days.
 ### Setup
 On PI (with Internet Connection):
 1. Login to pi account.
-2. Download this repo ```git clone https://github.com/antisharper/explorationsofZ.git```
+2. Download this repo ```git clone https://github.com/antisharper/explorationsofZ.git .```
 3. Download you OpenVPN config (.ovpn) into /home/pi. ```scp myaccount@mysourceserver:myconfig.ovpn .```
 4. Run install script. ```cd /home/pi; sudo explorationsofZ/RouterSetup.sh```  
 - Answer prompts and after 3 reboots you'll have a working all wireless AP to Router with openvpn service.
