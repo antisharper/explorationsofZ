@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 PORT=2222
 WAITTIME=120
