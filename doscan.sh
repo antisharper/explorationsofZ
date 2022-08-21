@@ -3,9 +3,9 @@
 SORT="1,5,7"
 WLAN=wlan0
 
-while getopts "w:s:" opt; do
+while getopts "i:s:" opt; do
     case "$opt" in
-    w)  WLAN=$OPTARG
+    i)  WLAN=$OPTARG
         ;;
     s)  SORT=$OPTARG
         ;;
