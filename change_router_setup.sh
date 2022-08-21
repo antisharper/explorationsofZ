@@ -128,7 +128,7 @@ if [ ! -z "$NEWAPPW" ]; then
 fi
 
 if [ ! -z "$NEWCHANNEL" ]; then
-  echo -e "Updating AP Channel to ${BOLDSTART}${NEWCHANNEL}.1${BOLDEND}"
+  echo -e "Updating AP Channel to ${BOLDSTART}${NEWCHANNEL}${BOLDEND}"
 	sudo sed -i 's/^channel=.*/channel='$NEWCHANNEL'/g' /etc/hostapd/hostapd.conf
 	RESTARTHOSTAPD=1
 	echo --------------
