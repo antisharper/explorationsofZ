@@ -46,9 +46,9 @@ while getopts "h:n:a:p:c:b:ks" opt; do
     p)  NEWAPPW=$OPTARG
         ;;
     c)  if echo $OPTARG | grep -i R &>/dev/null; then
-    			NEWCONNECTIONPORT=12245
-    			while [[ "$NEWCONNECTIONPORT" =~ 12245|12255|12386 ]]; do
-    				NEWCONNECTIONPORT=$(( ( RANDOM % 1000 ) + 12000))
+    			NEWCONNECTPORT=12245
+    			while [[ "$NEWCONNECTPORT" =~ 12245|12255|12386 ]]; do
+    				NEWCONNECTPORT=$(( ( RANDOM % 1000 ) + 12000))
     			done
     		else
     			NEWCONNECTPORT=$OPTARG
@@ -86,7 +86,7 @@ fi
 
 if [ ! -z "$NEWCONNECTPORT" ]; then
   echo -e "Updating Connectionport to ${BOLDSTART}${NEWCONNECTPORT}${BOLDEND}"
-	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTIONPORT}' /' /home/pi/rc.nohup.ap
+	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTPORT}' /' /home/pi/rc.nohup.ap
 	ps -ef | grep -v grep | grep "localhost:22" | awk '{print $2}' | sudo xargs kill -9 &>/dev/null
 	ps -ef | grep -v grep | grep "run-update" | awk '{print $2}' | sudo xargs kill -9 &>/dev/null
 	grep run-update rc.nohup.ap > /tmp/new-run.sh
@@ -112,7 +112,7 @@ if [ ! -z "$NEWNETWORK" ]; then
 fi
 	
 if [ ! -z "$NEWAP" ]; then
-  echo -e "Updating AP Name to ${BOLDSTART}${NEWAP}.1${BOLDEND}"
+  echo -e "Updating AP Name to ${BOLDSTART}${NEWAP}${BOLDEND}"
 	sudo sed -i 's/^ssid=.*/ssid='$NEWAP'/g' /etc/hostapd/hostapd.conf
 	RESTARTHOSTAPD=1
 	RECONNECTTOAP=1
@@ -120,7 +120,7 @@ if [ ! -z "$NEWAP" ]; then
 fi
 
 if [ ! -z "$NEWAPPW" ]; then
-  echo -e "Updating AP Password to ${BOLDSTART}${NEWAPPW}.1${BOLDEND}"
+  echo -e "Updating AP Password to ${BOLDSTART}${NEWAPPW}${BOLDEND}"
 	sudo sed -i 's/^wpa_passphrase=.*/wpa_passphrase='$NEWAPPW'/g' /etc/hostapd/hostapd.conf
 	RESTARTHOSTAPD=1
 	RECONNECTTOAP=1
