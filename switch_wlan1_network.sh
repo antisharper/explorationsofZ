@@ -17,7 +17,7 @@ echo "  Waiting ${SWITCHSLEEP} seconds for WLAN to settle." ; sleep ${SWITCHSLEE
 sudo wpa_cli -i wlan1 enable_network all | sed 's/^/   Re-enable Network Scans >>> /'
 echo "  Updated:"
 sudo wpa_cli -i wlan1 list_networks | sed 's/^/     /'
-if [ ! -x /dev/shm/no-openvpn ]; then
+if [ ! -e /dev/shm/no-openvpn ]; then
 	if [ "$KILLOPEN" == "y" ]; then
 		echo "     Killing OPENVPN"
 		ps -ef | grep openvpn | grep config | grep -v watch | awk '{print $2}' | sudo xargs -n1 kill -9 

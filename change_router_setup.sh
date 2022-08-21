@@ -86,7 +86,7 @@ fi
 
 if [ ! -z "$NEWCONNECTPORT" ]; then
   echo -e "Updating Connectionport to ${BOLDSTART}${NEWCONNECTPORT}${BOLDEND}"
-	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTPORT}' /' /home/pi/rc.nohup.ap
+	sudo sed -i 's/-p 12[0-9]* /-p '${NEWCONNECTIONPORT}' /' /home/pi/rc.nohup.ap
 	ps -ef | grep -v grep | grep "localhost:22" | awk '{print $2}' | sudo xargs kill -9 &>/dev/null
 	ps -ef | grep -v grep | grep "run-update" | awk '{print $2}' | sudo xargs kill -9 &>/dev/null
 	grep run-update rc.nohup.ap > /tmp/new-run.sh
