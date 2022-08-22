@@ -21,8 +21,8 @@ if [ -z "$1" ]; then
   -p new_password    -- New Access Point Password
 	-c New_port#       -- New Remote Connection Port for Router for Updates (R - random)
   -b New AP Channel# -- New Acce4ss Point Broadcast Channel # (1-11 bgn|other# a or ax) (R = random)
-  -u                 -- Update SSH key (and display new pub Key) 
-  -k                 -- Rebuild Routers SSH Host Keys
+  -k                 -- Update SSH key (and display new pub Key) 
+  -s                 -- Rebuild Routers SSH Host Keys
 EOF
 
 	exit 0
