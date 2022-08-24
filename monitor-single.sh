@@ -44,8 +44,8 @@ function ipmasqstatus () {
 	head -1 /dev/shm/netstat-nat.out
 	tail -n +2 /dev/shm/netstat-nat.out > /dev/shm/netstat-nat.out.2 
 	grep UNREPLIED /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
-	grep -Ev \(UNREPLIED\|CLOSE\|TIME\|FIN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
-	grep -E \(CLOSE\|TIME\|FIN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
+	grep -Ev \(UNREPLIED\|CLOSE\|TIME\|FIN\|SYN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
+	grep -E \(CLOSE\|TIME\|FIN\|SYN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
 }
 
 function linebreak () {
