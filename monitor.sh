@@ -8,6 +8,14 @@ fi
 
 CHECKTIME=5
 
+while getopts "w:" opt; do
+    case "$opt" in
+    w)  CHECKTIME=$OPTARG
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+
 case "${1:-all}" in
   all)  watch --difference -n ${CHECKTIME} 'echo Router: $(hostname) $(vcgencmd measure_temp) Connection Status:$(cat /dev/shm/ledpattern.txt) ---- $(uptime); echo -- ------; ps -ef | grep -v grep | grep openvpn; ls -ltr /dev/shm/no-openvpn 2>/dev/null; echo -- ------- ; echo -n Access Point:\ ; sudo hostapd_cli -i wlan0 status | grep ^ssid | sed 's/.*=//'; ifconfig wlan0 2>/dev/null; iwconfig wlan1 2>/dev/null; ifconfig wlan1 2>/dev/null; ifconfig tun0 2>/dev/null; if ethtool eth0 2>/dev/null | grep Speed | grep -vi unknown; then ifconfig eth0 2>/dev/null; fi ; echo -- -------; route -n ; echo -- -------; iptables -L -n -v ; echo -- ------- ; iptables -t nat -L -n -v; echo -- ------; netstat -tn | grep -E \(Address\|ESTAB\|CLOSE\|LISTEN\); echo -- ------- ; netstat-nat -n > /dev/shm/netstat-nat.out; head -1 /dev/shm/netstat-nat.out; tail -n +2 /dev/shm/netstat-nat.out | grep -E \(ASSURED\|ESTABLISHED\|CLOSE\|REPLIED\) | (read -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3)'
       ;;
