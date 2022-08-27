@@ -36,18 +36,18 @@ while getopts "b:s:d:w:m:e:g:i:t:hv" opt; do
     g)  VPNHOST=$OPTARG
         ;;
     t)  INTERFACE=$OPTARG
-				;;
+        ;;
     t)  TUNDEV=$OPTARG
-    		;;
+        ;;
     v)  DEBUG=1
         ;;
     h) cat <<EOF
  $0 [-t TUNDEV|-b BWLIMIT|-e ERASEBWLIMIT|-w WAITTIME|-m MAXCOUNT|-d HOGSDELAY|-s HOGSSAMPLES|-g VPNHOST]
  
-       Reduce VPN traffic by automatically find heavily used IP (> BWLIMIT) over tunnel ($TUNDEV) and add routes directly over $INTERFACE gateway. 
-       When added route usage goes back below ERASEBWLIMIT, remove these routes so trafic goes over VPN again.
+  Reduce VPN traffic by automatically find heavily used IP (> BWLIMIT) over tunnel ($TUNDEV) and add routes directly over $INTERFACE gateway. 
+  When added route usage goes back below ERASEBWLIMIT, remove these routes so trafic goes over VPN again.
 
-			 Program runs continuously.
+  Program runs continuously.
 
   -t dev  -- Tunnel device ($TUNDEV)
   -b #    -- Bandwidth trigger over this amount add route to wlan for $INTERFACE (KBPS) ($BWLIMIT)
