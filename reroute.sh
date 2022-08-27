@@ -1,10 +1,5 @@
 #!/bin/bash
 
-HOGSFILE=/dev/shm/hogs.out
-ROUTESNEW=/dev/shm/routelist.new
-ROUTESFOUND=/dev/shm/routelist.FOUND
-DISABLEFILE=/dev/shm/no-reroute
-
 BWLIMIT=75
 ERASEBWLIMIT=10
 HOGSDELAY=10
@@ -66,6 +61,11 @@ EOF
   esac
 done
 shift $((OPTIND-1))
+
+HOGSFILE=/dev/shm/reroute-hogs.out
+ROUTESNEW=/dev/shm/reroute-${INTERFACE}.new
+ROUTESFOUND=/dev/shm/reroute-${INTERFACE}.FOUND
+DISABLEFILE=/dev/shm/no-reroute-${INTERFACE}
 
 if [ -z "$ERASEBWLIMIT" ]; then ERASEBWLIMIT=$BWLIMIT; fi
 
