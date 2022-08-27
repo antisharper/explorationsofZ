@@ -74,66 +74,66 @@ echo `date` +++ BWLIMIT:$BWLIMIT ERASEBWLIMIT:$ERASEBWLIMIT WAITTIME:$WAITTIME M
 COUNT=1
 
 while (true); do
-	TUNIPMATCH=$(ip route | grep -v link | awk '/'$TUNDEV'/ {print $(NF-2)}' | head -1 | sed 's/\.[^\.]$/\\\./')
-	LOCALNET=$(ip route | awk '/wlan0/ {print $(NF-2)}' | sed 's/\.[^\.]$/./')
-	#VPNGATEWAY=$(ip route | grep $INTERFACE | grep -v metric | head -1 | awk '{print $1}')
-	VPNGATEWAY=$(host ${VPNHOST} | awk '{print $NF}')
-	UPLINK=$(ip route | grep $INTERFACE | grep default | head -1 | awk '{print $3}')
-	ULIPMATCH=$(echo $UPLINK | sed 's/\.[^\.]$/\\\./')
-	if [ ! -z "$DEBUG" ]; then echo `date` LOCALNET:$LOCALNET TUNIPMATCH:$TUNIPMATCH VPNGATEWAY:$VPNGATEWAY UPLINK:$UPLINK ULIPMATCH:$ULIPMATCH; fi
+  TUNIPMATCH=$(ip route | grep -v link | awk '/'$TUNDEV'/ {print $(NF-2)}' | head -1 | sed 's/\.[^\.]$/\\\./')
+  LOCALNET=$(ip route | awk '/wlan0/ {print $(NF-2)}' | sed 's/\.[^\.]$/./')
+  #VPNGATEWAY=$(ip route | grep $INTERFACE | grep -v metric | head -1 | awk '{print $1}')
+  VPNGATEWAY=$(host ${VPNHOST} | awk '{print $NF}')
+  UPLINK=$(ip route | grep $INTERFACE | grep default | head -1 | awk '{print $3}')
+  ULIPMATCH=$(echo $UPLINK | sed 's/\.[^\.]$/\\\./')
+  if [ ! -z "$DEBUG" ]; then echo `date` LOCALNET:$LOCALNET TUNIPMATCH:$TUNIPMATCH VPNGATEWAY:$VPNGATEWAY UPLINK:$UPLINK ULIPMATCH:$ULIPMATCH; fi
 
-	if [ ! -z "$TUNIPMATCH" ]; then
+  if [ ! -z "$TUNIPMATCH" ]; then
 
-		echo `date` Get NetHogs Sample CNT:$COUNT
-		sudo nethogs -t -d $HOGSDELAY -c $[HOGSSAMPLES+1] 2>/dev/null | grep -- - | sed '/0\x090\x2e0/d;s/-/\t/g;s/:[0-9\/]*//g' | awk '$4 > '$ERASEBWLIMIT > $HOGSFILE 
-		if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $HOGSFILE; fi
+   echo `date` Get NetHogs Sample CNT:$COUNT
+   sudo nethogs -t -d $HOGSDELAY -c $[HOGSSAMPLES+1] 2>/dev/null | grep -- - | sed '/0\x090\x2e0/d;s/-/\t/g;s/:[0-9\/]*//g' | awk '$4 > '$ERASEBWLIMIT > $HOGSFILE 
+   if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $HOGSFILE; fi
 
-		if [ ! -s $HOGSFILE ]; then (( COUNT = COUNT + 1 )); fi
+   if [ ! -s $HOGSFILE ]; then (( COUNT = COUNT + 1 )); fi
 
-		if [ $COUNT -gt $MAXCOUNT ] || [ -s $HOGSFILE ]; then 
-			COUNT=1
+   if [ $COUNT -gt $MAXCOUNT ] || [ -s $HOGSFILE ]; then 
+     COUNT=1
 
-			echo `date` -- Process for Active Connections Limit:$BWLIMIT UPLIPMATCH:$ULIPMATCH ROUTESNEW:$ROUTESNEW LOCALNET:$LOCALNET
-			rm $ROUTESNEW &>/dev/null
-			awk '$4 > '$BWLIMIT' && $1!~/'$ULIPMATCH'/ {print $2}' $HOGSFILE | grep -v "$LOCALNET" | sort -u > $ROUTESNEW 
-			if [ -s $ROUTESNEW ]; then
-				echo `date` -- Update new re-routes 
-				if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $ROUTESNEW; fi
-				cat $ROUTESNEW | while read NEWROUTE; do 
-					if ! ip route | grep "$NEWROUTE " &>/dev/null; then 
-						echo `date` -----  Didnot find wlan1 route to $NEWROUTE... Adding it to $UPLINK
-						if [ -e $DISABLEFILE ]; then 
-							echo `date` --- \!\!\!\! DISABLED - NO REROUTING
-						else
-							sudo ip route add $NEWROUTE via $UPLINK
-						fi
-					else
-						echo `date` -----  $NEWROUTE already in reroute list
-					fi
-				done
-			fi	
+     echo `date` -- Process for Active Connections Limit:$BWLIMIT UPLIPMATCH:$ULIPMATCH ROUTESNEW:$ROUTESNEW LOCALNET:$LOCALNET
+     rm $ROUTESNEW &>/dev/null
+     awk '$4 > '$BWLIMIT' && $1!~/'$ULIPMATCH'/ {print $2}' $HOGSFILE | grep -v "$LOCALNET" | sort -u > $ROUTESNEW 
+     if [ -s $ROUTESNEW ]; then
+       echo `date` -- Update new re-routes 
+       if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $ROUTESNEW; fi
+       cat $ROUTESNEW | while read NEWROUTE; do 
+	       if ! ip route | grep "$NEWROUTE " &>/dev/null; then 
+		       echo `date` -----  Didnot find wlan1 route to $NEWROUTE... Adding it to $UPLINK
+		       if [ -e $DISABLEFILE ]; then 
+			       echo `date` --- \!\!\!\! DISABLED - NO REROUTING
+		       else
+			       sudo ip route add $NEWROUTE via $UPLINK
+		       fi
+	       else
+		       echo `date` -----  $NEWROUTE already in reroute list
+	       fi
+       done
+     fi	
 
-			ip route | grep -v $VPNGATEWAY | grep -v metric | grep "via $UPLINK " | awk '{print $1}' > $ROUTESFOUND
-			if [ -s $ROUTESFOUND ]; then
-				echo `date` -- Remove unused re-routes 
-				grep -vFf $ROUTESNEW $ROUTESFOUND |  while read FOUNDROUTE; do 
-					echo `date` ----- FOUNDROUTE $FOUNDROUTE
-					#grep $FOUNDROUTE $HOGSFILE
-					if ! grep $FOUNDROUTE $HOGSFILE &>/dev/null; then 
-						echo `date` --------  Remove low BW route $FOUNDROUTE
-						if [ -e $DISABLEFILE ]; then 
-							echo `date` --- \!\!\!\! DISABLED - NO REROUTING
-						else
-							sudo ip route del $FOUNDROUTE
-						fi
-					fi
-				done
-			fi
+     ip route | grep -v $VPNGATEWAY | grep -v metric | grep "via $UPLINK " | awk '{print $1}' > $ROUTESFOUND
+     if [ -s $ROUTESFOUND ]; then
+       echo `date` -- Remove unused re-routes 
+       grep -vFf $ROUTESNEW $ROUTESFOUND |  while read FOUNDROUTE; do 
+	       echo `date` ----- FOUNDROUTE $FOUNDROUTE
+	       #grep $FOUNDROUTE $HOGSFILE
+	       if ! grep $FOUNDROUTE $HOGSFILE &>/dev/null; then 
+		       echo `date` --------  Remove low BW route $FOUNDROUTE
+		       if [ -e $DISABLEFILE ]; then 
+			       echo `date` --- \!\!\!\! DISABLED - NO REROUTING
+		       else
+			       sudo ip route del $FOUNDROUTE
+		       fi
+	       fi
+       done
+     fi
 
-		fi
+   fi
 
-	fi
+  fi
 
-	echo `date` - WAITTIME $WAITTIME
-	sleep $WAITTIME
+  echo `date` - WAITTIME $WAITTIME
+  sleep $WAITTIME
 done
