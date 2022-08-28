@@ -12,8 +12,8 @@ function header () {
 }
 
 function openvpnstatus () {
-	ps -ef | grep -Ev \(grep\|sudo\|run-\) | grep -E \(localhost:22\|openvpn\)
 	ls -ltr /dev/shm/no-openvpn 2>/dev/null
+	ps -ef | grep -Ev \(grep\|sudo\|run-\) | grep -E \(localhost:22\|openvpn\)
 }
 
 function networkstatus () {
