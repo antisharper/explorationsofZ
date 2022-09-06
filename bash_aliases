@@ -12,7 +12,7 @@ kill_PI_connection() {
     sudo systemctl restart ufw
   else
     endpoint=$1
-    sudo netstat -apn | grep ssh | grep $(grep $endpoint ~/map-ports-service.txt | head -1 | sed 's/,.*$//') | awk '{print $7}' | sed 's/\/.*$//' | sudo xargs kill -9
+    sudo netstat -apn | grep ssh | grep -i $(grep $endpoint ~/map-ports-service.txt | head -1 | sed 's/,.*$//') | awk '{print $7}' | sed 's/\/.*$//' | sudo xargs kill -9
   fi
  }
     
