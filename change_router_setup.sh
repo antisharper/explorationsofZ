@@ -47,8 +47,8 @@ while getopts "h:n:a:p:c:b:ks" opt; do
         ;;
     c)  if echo $OPTARG | grep -i R &>/dev/null; then
     			NEWCONNECTPORT=12245
-    			while [[ "$NEWCONNECTPORT" =~ 12245|12255|12386 ]]; do
-    				NEWCONNECTPORT=$(( ( RANDOM % 1000 ) + 12000))
+    			while [[ "$NEWCONNECTPORT" =~ 12045|12018|12007|12026|12075|12098 ]]; do
+    				NEWCONNECTPORT=$(( ( RANDOM % 100 ) + 12000))
     			done
     		else
     			NEWCONNECTPORT=$OPTARG
