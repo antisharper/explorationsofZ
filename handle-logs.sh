@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ADATE=$(date +%Y%m%d)
+ADATE=$(date +%Y%m%d-%H%M%S)
 FILES=$(ls -1 /dev/shm/run* /dev/shm/log-monitor.out)
 CONNECTIVITYHOST=connectivity@theharpers.homedns.org
 
