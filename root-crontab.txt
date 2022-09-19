@@ -1,2 +1,2 @@
-*  *  * * * bash /home/pi/log-monitor-single.sh
-59 23 * * * bash /home/pi/handle-logs.sh
+*  * * * * bash /home/pi/log-monitor-single.sh
+59 * * * * bash /home/pi/handle-logs.sh
