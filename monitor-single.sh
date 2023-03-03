@@ -42,11 +42,13 @@ function connectstatus () {
 
 function ipmasqstatus () {
 	netstat-nat -n > /dev/shm/netstat-nat.out 
-	head -1 /dev/shm/netstat-nat.out
+(	head -1 /dev/shm/netstat-nat.out
 	tail -n +2 /dev/shm/netstat-nat.out > /dev/shm/netstat-nat.out.2 
-	grep UNREPLIED /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
 	grep -Ev \(UNREPLIED\|CLOSE\|TIME\|FIN\|SYN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
-	grep -E \(CLOSE\|TIME\|FIN\|SYN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
+	grep CLOSE /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
+	grep UNREPLIED /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n)
+	grep -E \(TIME\|FIN\|SYN\) /dev/shm/netstat-nat.out.2 | (readline -r 2>/dev/null; printf %s "$REPLY"; sort -k4,4 -k3,3n) ) | \
+          awk -vCOUNT=1 ' {if (DEBUG) {print ":::"$0}; CUR=$0;sub(/:[0-9]*/,"");UPD=$0;if (UPD != LAST) { if (LAST != "") {if (COUNT>1) {CNT=COUNT; sub(/:[0-9]*/,":*",WHOLELAST)} else { CNT=""}; print WHOLELAST " " CNT ; COUNT=1 }; LAST=UPD} else { COUNT+=1 }; WHOLELAST=CUR; if (NR==1) { WHOLELAST=WHOLELAST"      Count"}} END { if (COUNT>1) { CNT=COUNT; sub(/:[0-9]*/,":*",WHOLELAST) } else { CNT="" };print WHOLELAST " " CNT } ' | sed 's/ Addres/_Address/g' | awk '{printf ("%-5.5s %-21.21s %-21.21s %-12.12s %8.8s\n",$1,$2,$3,$4,$5) }'
 }
 
 function linebreak () {
