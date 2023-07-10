@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Status</title>
+    <meta http-equiv="refresh" content="55">
+    <style>
+        /* CSS styles */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Add any other custom styles you need */
+    </style>
+</head>
+<body>
+    <ul>
+    {% for link in links %}
+        <li><a href="{{ link.url }}">{{ link.name }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h2>Status</h2>
+    {{ status_output|safe }}
+</body>
+</html>
+

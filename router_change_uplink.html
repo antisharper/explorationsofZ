@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Uplink</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+	    width: 100%;
+        }
+        
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .toggle-button, .add-button, .delete-button, .set-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 1s ease;
+            color: white; /* Updated text color */
+            font-weight: bold; /* Updated font weight */
+        }
+        
+        .toggle-button.enabled {
+            background-color: green;
+        }
+        
+        .toggle-button.disabled {
+            background-color: red;
+        }
+        
+        .add-button {
+            background-color: blue;
+        }
+        
+        .delete-button {
+            background-color: red;
+        }
+        
+        .set-button {
+            background-color: grey;
+        }
+    </style>
+
+<script>
+    $(document).ready(function() {
+        $('#defined-uplinks-table').DataTable({
+            "order": [[0, 'desc'], [3, 'desc']],
+            "paging": false,
+            "searching": false
+        });
+
+        $('#found_wifi-table').DataTable({
+            "order": [[3, 'desc']],
+            "paging": false,
+            "searching": false
+        });
+
+        // Add event listener to toggle buttons
+        $('.toggle-button').on('click', function() {
+            var network = $(this).data('network');
+            var button = $(this);
+
+            $.get('/toggle_uplink?network=' + network, function() {
+                location.reload();
+            });
+        });
+
+        $('.set-button').on('click', function() {
+            var network = $(this).data('network');
+            var priority = $(this).closest('tr').find('.priority-input').val();
+
+            $.get('/set_uplink_priority?network=' + network + '&priority=' + priority, function() {
+                location.reload();
+            });
+        });
+
+        $('#create-uplink-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+            var form = this;
+
+            $.ajax({
+                type: $(form).attr('method'),
+                url: $(form).attr('action'),
+                data: $(form).serialize(),
+                success: function() {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        });
+
+
+        $('.delete-button').on('click', function() {
+            var network = $(this).data('network');
+            var message = "Are you sure you wish to delete " + network + "?";
+
+            if (confirm(message)) {
+                $.get('/delete_uplink?network=' + network, function() {
+                    location.reload();
+                });
+            }
+        });
+
+        $('.add-button').on('click', function() {
+            var network = $(this).data('network');
+            $('#wifi-name').val(network);
+        });
+
+    });
+</script>
+
+</head>
+<body>
+    <a href="/">Back to Status</a> <!-- Added link to go back to the "Status" page -->
+    <hr>
+    <h1>Defined Uplinks</h1>
+    <table id="defined-uplinks-table">
+        <thead>
+            <tr>
+                <th>Enabled</th>
+                <th>Network</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in defined_uplinks %}
+            <tr>
+                <td>
+                    {% if entry['enabled'] %}
+                        <button class="toggle-button enabled" data-network="{{ entry['ssid'] }}">Enabled</button>
+                    {% else %}
+                        <button class="toggle-button disabled" data-network="{{ entry['ssid'] }}">Disabled</button>
+                    {% endif %}
+                </td>
+                <td>{{ entry['ssid'] }}</td>
+                <td>{{ entry['id_str'] }}</td>
+                <td>
+                    <input type="number" min="-1" max="100" value="{% if entry['priority'] >= 0 %}{{ entry['priority'] }}{% endif %}" {% if entry['priority'] < 0 %}placeholder="Not Set"{% endif %} class="priority-input" required>
+                    <button class="set-button" data-network="{{ entry['ssid'] }}">Set</button>
+                </td>
+                <td>
+		  <button class="delete-button" data-network="{{ entry['ssid'] }}">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h1>Create Uplink</h1>
+    <form id="create-uplink-form" action="/create_uplink" method="POST">
+        <label for="wifi-name">Wifi Name:</label>
+        <input type="text" id="wifi-name" name="wifi-name" maxlength="40" required>
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" maxlength="80" required>
+
+        <label for="secret-password">Secret Password:</label>
+        <input type="password" id="secret-password" name="secret-password" maxlength="20">
+
+        <label for="priority">Priority:</label>
+        <input type="number" id="priority" name="priority" min="-1" max="100" value="-1" required>
+
+        <button type="submit" style="background-color: orange;">Create Uplink</button>
+    </form>
+
+    <hr>
+
+    <h1>Found WiFi</h1>
+    <table id="found_wifi-table">
+        <thead>
+            <tr>
+                <th>Network</th>
+                <th>ENCRYPT</th>
+                <th>BITRATE</th>
+                <th>SIGNAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wifi in found_wifi %}
+            <tr>
+                <td>
+                {% if not ( '--' in wifi['Network'] ) %} <button class="add-button" data-network="{{ wifi['Network'] }}">Add</button>  &nbsp; {% endif %} {{ wifi['Network'] }}</td>
+                <td>{{ wifi['ENCRYPT'] }}</td>
+                <td>{{ wifi['BITRATE'] }}</td>
+                <td>{{ wifi['SIGNAL'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
