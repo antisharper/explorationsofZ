@@ -5,6 +5,11 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <meta http-equiv="refresh" content="{% if currentuplink == "" %}03{% else %}50{% endif %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
     <style>
         table {
             border-collapse: collapse;
@@ -16,15 +21,26 @@
             border: 1px solid #ddd;
         }
         
-        .toggle-button, .add-button, .delete-button, .set-button {
+        .toggle-button, .add-button, .delete-button, .set-button, .reconfigure-button {
             padding: 5px 10px;
             border: none;
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
             transition: background-color 1s ease;
-            color: white; /* Updated text color */
-            font-weight: bold; /* Updated font weight */
+            color: white;
+            font-weight: bold;
+        }
+        
+        .currentuplink {
+            font-weight: bold;
+            color: purple;
+        }
+        
+        .localap {
+            font-weight: bold;
+            font-style: italic;
+            color: red;
         }
         
         .toggle-button.enabled {
@@ -39,12 +55,36 @@
             background-color: blue;
         }
         
+        .reconfigure-button {
+            background-color: wheat;
+            /* width: 100%; */
+            text-align: right;
+        }
+        
         .delete-button {
             background-color: red;
         }
         
         .set-button {
             background-color: grey;
+        }
+        
+        /* .datetime {
+            background-color: grey;
+            width: 100%;
+            text-align: center;
+        } */
+
+        .topline {
+          display: flex; 
+          justify-content: space-between;
+        }
+
+        .red-box {
+            background-color: red;
+            color: white;
+            font-weight: bold;
+            padding: 20px;
         }
     </style>
 
@@ -62,7 +102,14 @@
             "searching": false
         });
 
-        // Add event listener to toggle buttons
+        $('.reconfigure-button').on('click', function() {
+            var button = $(this);
+
+            $.get('/reconfigure', function() {
+                location.reload();
+            });
+        });
+
         $('.toggle-button').on('click', function() {
             var network = $(this).data('network');
             var button = $(this);
@@ -82,7 +129,7 @@
         });
 
         $('#create-uplink-form').on('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
             var form = this;
 
             $.ajax({
@@ -112,16 +159,30 @@
         $('.add-button').on('click', function() {
             var network = $(this).data('network');
             $('#wifi-name').val(network);
+            $('#wifi-name').focus();
         });
-
+        
+        var date = new Date();
+        var n = date.toDateString();
+        var time = date.toLocaleTimeString();
+        document.getElementById('datetime').innerHTML = n + ' ' + time;
     });
 </script>
 
 </head>
 <body>
-    <a href="/">Back to Status</a> <!-- Added link to go back to the "Status" page -->
+    <div class="topline"><a href="/index.html">Back to Status</a> <div id="datetime">timestamp</div><button class="reconfigure-button">Force Uplink Reconfiguration</button> </div>
     <hr>
-    <h1>Defined Uplinks</h1>
+
+    {% if currentuplink == "" %} 
+        <div class="red-box">
+        <p>{{ message }}</p>
+            <p>UPLINK disconnected: Please wait 60 seconds for network connection or press "RECONFIGURE" button.</p>
+       </div>
+	<hr>
+   {% endif %}
+
+   <h1>Defined Uplinks</h1>
     <table id="defined-uplinks-table">
         <thead>
             <tr>
@@ -142,7 +203,7 @@
                         <button class="toggle-button disabled" data-network="{{ entry['ssid'] }}">Disabled</button>
                     {% endif %}
                 </td>
-                <td>{{ entry['ssid'] }}</td>
+                <td{% if currentuplink == entry['ssid'] %} class="currentuplink"{% endif %}>{{ entry['ssid'] }}</td>
                 <td>{{ entry['id_str'] }}</td>
                 <td>
                     <input type="number" min="-1" max="100" value="{% if entry['priority'] >= 0 %}{{ entry['priority'] }}{% endif %}" {% if entry['priority'] < 0 %}placeholder="Not Set"{% endif %} class="priority-input" required>
@@ -190,8 +251,8 @@
         <tbody>
             {% for wifi in found_wifi %}
             <tr>
-                <td>
-                {% if not ( '--' in wifi['Network'] ) %} <button class="add-button" data-network="{{ wifi['Network'] }}">Add</button>  &nbsp; {% endif %} {{ wifi['Network'] }}</td>
+                <td {% if currentuplink == wifi['Network'] %}class="currentuplink"{% endif %} {% if localap == wifi['Network'] %} class="localap"{% endif %}>
+                {% if not ( wifi['Network'] == currentuplink or wifi['Network'] == localap ) %} <button class="add-button" data-network="{{ wifi['Network'] }}">Add</button>  &nbsp; {% endif %} {{ wifi['Network'] }}</td>
                 <td>{{ wifi['ENCRYPT'] }}</td>
                 <td>{{ wifi['BITRATE'] }}</td>
                 <td>{{ wifi['SIGNAL'] }}</td>
