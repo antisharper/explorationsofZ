@@ -316,7 +316,7 @@ def reboot_router():
         reboot_output = str(e)
 
     print("Raw reboot_output:",reboot_output)
-    return "Success", 204
+    return redirect(url_for('/'))
     
 @app.route('/stop_openvpn', methods=['GET'])
 def stop_openvpn():
@@ -330,21 +330,21 @@ def stop_openvpn():
         stop_openvpn_output = str(e)
 
     print("Raw stop_openvpn_output:",stop_openvpn_output)
-    return "Success", 204
+    return redirect(url_for('/'))
 
-@app.route('/start_openvpn', methods=['GET'])
-def start_openvpn():
-    start_openvpn_command_str = 'sudo bash connect-openvpn.sh'
-    # print("start_openvpn_command_str:",start_openvpn_command_str)
+@app.route('/restart_openvpn', methods=['GET'])
+def restart_openvpn():
+    restart_openvpn_command_str = 'sudo bash disconnect-openvpn.sh; sleep 10;sudo bash connect-openvpn.sh'
+    # print("restart_openvpn_command_str:",restart_openvpn_command_str)
 
     try:
-        start_openvpn_output= subprocess.check_output(start_openvpn_command_str, shell=True, encoding='utf-8')
+        restart_openvpn_output= subprocess.check_output(restart_openvpn_command_str, shell=True, encoding='utf-8')
     except subprocess.CalledProcessError as e:
         # Handle the subprocess error
-        start_openvpn_output = str(e)
+        restart_openvpn_output = str(e)
 
-    print("Raw start_openvpn_output:",start_openvpn_output)
-    return "Success", 204
+    print("Raw restart_openvpn_output:",restart_openvpn_output)
+    return redirect(url_for('/'))
 
 @app.route('/create_uplink', methods=['POST'])
 def create_uplink():
