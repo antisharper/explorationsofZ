@@ -5,8 +5,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Status</title>
-    <meta http-equiv="refresh" content="55">
+    <meta http-equiv="refresh" content="35">
     <style>
         /* CSS styles */
         table {
@@ -24,18 +25,78 @@
             background-color: #f2f2f2;
         }
 
-        /* Add any other custom styles you need */
+        .topnav {
+          overflow: hidden;
+          background-color: #333;
+        }
+
+        .topnav a {
+          float: left;
+          color: #f2f2f2;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-size: 17px;
+        }
+
+        .topnav a:hover {
+          background-color: #ddd;
+          color: black;
+        }
+
+        .topnav a.active {
+          background-color: #04AA6D;
+          color: white;
+        }
+
+        .belowbar {
+          overflow: hidden;
+          background-color: #888;
+          display: inline-block;
+          vertical-align: middle;
+        }
+        
+        .reconfigure-button {
+            background-color: wheat;
+            color: black;
+            float: right;
+        }
+
+        .datetime {
+             float: left;
+        }
     </style>
+    <script>
+      $(document).ready(function() {
+        $('.reconfigure-button').on('click', function() {
+            $.get('/reconfigure', function() {
+                location.reload();
+            });
+        });
+        
+        var date = new Date();
+        var n = date.toDateString();
+        var time = date.toLocaleTimeString();
+        document.getElementById('datetime').innerHTML = n + ' ' + time;
+      });
+    </script>
 </head>
 <body>
-    <ul>
-    {% for link in links %}
-        <li><a href="{{ link.url }}">{{ link.name }}</a></li>
-    {% endfor %}
-    </ul>
-
-    <h2>Status</h2>
-    {{ status_output|safe }}
+  <div class="topnav">
+    <a class="active" href="/index.html">Status</a>
+    <a href="/change_uplink">Change Uplink</a>
+    <a href="/change_network_name">Reset AP Name</a>
+    <a href="/change_ap_password">Reset AP Password</a>
+    <a href="/restart_ssh">Restart SSH</a>
+    <a href="/stop_openvpn">Stop OpenVPN</a>
+    <a href="/restart_openvpn">Restart OpenVPN</a>
+    <a href="/reboot_router">Reboot</a>
+  </div>
+  <div id="belowbar">
+  	<label id="datetime">timestamp</label>
+    <button class="reconfigure-button">Force Uplink Reconfiguration</button>
+  </div>
+  <h1>Status</h1>
+  {{ status_output|safe }}
 </body>
 </html>
-

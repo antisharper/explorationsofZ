@@ -163,19 +163,7 @@ def index():
     status_output += "</pre>"
     # print("Cooked Status_output:",status_output)
 
-    links = [
-        {'name': 'Change Uplink', 'url': '/change_uplink'},
-        {'name': 'Change Hostname', 'url': '/change_hostname'},
-        {'name': 'Change AP Network Name', 'url': '/change_network_name'},
-        {'name': 'Change Network Octet', 'url': '/change_network_octet'},
-        {'name': 'Change AP Password', 'url': '/change_ap_password'},
-        {'name': 'Change Update Port', 'url': '/change_update_port'},
-        {'name': 'Update SSH PUB Key', 'url': '/update_ssh_pub_key'},
-        {'name': 'Regenerate SSH HOST Key', 'url': '/regenerate_ssh_host_key'},
-        {'name': 'Reboot Router', 'url': '/reboot_router'}
-    ]
-
-    return render_template('router_index.html', status_output=status_output, links=links)
+    return render_template('router_index.html', status_output=status_output)
 
 @app.route('/change_uplink')
 def change_uplink():
@@ -328,8 +316,34 @@ def reboot_router():
         reboot_output = str(e)
 
     print("Raw reboot_output:",reboot_output)
+    return "Success", 204
+    
+@app.route('/stop_openvpn', methods=['GET'])
+def stop_openvpn():
+    stop_openvpn_command_str = 'sudo bash disconnect-openvpn.sh'
+    # print("stop_openvpn_command_str:",stop_openvpn_command_str)
 
+    try:
+        stop_openvpn_output= subprocess.check_output(stop_openvpn_command_str, shell=True, encoding='utf-8')
+    except subprocess.CalledProcessError as e:
+        # Handle the subprocess error
+        stop_openvpn_output = str(e)
 
+    print("Raw stop_openvpn_output:",stop_openvpn_output)
+    return "Success", 204
+
+@app.route('/start_openvpn', methods=['GET'])
+def start_openvpn():
+    start_openvpn_command_str = 'sudo bash connect-openvpn.sh'
+    # print("start_openvpn_command_str:",start_openvpn_command_str)
+
+    try:
+        start_openvpn_output= subprocess.check_output(start_openvpn_command_str, shell=True, encoding='utf-8')
+    except subprocess.CalledProcessError as e:
+        # Handle the subprocess error
+        start_openvpn_output = str(e)
+
+    print("Raw start_openvpn_output:",start_openvpn_output)
     return "Success", 204
 
 @app.route('/create_uplink', methods=['POST'])
@@ -359,6 +373,15 @@ def create_uplink():
         reconfigure_wlan1()
 
     return 'Success', 204
+
+@app.route('/android-chrome-192x192.png')
+@app.route('/android-chrome-512x512.png')
+@app.route('/apple-touch-icon.png')
+@app.route('/favicon-16x16.png')
+@app.route('/favicon-32x32.png')
+@app.route('/site.webmanifest')
+def statics():
+    return render_template(request.path)
 
 if __name__ == '__main__':
     app.run(host=(bindaddrport.split(":"))[0],ssl_context='adhoc',port=(bindaddrport.split(":"))[1], debug=debugmode)

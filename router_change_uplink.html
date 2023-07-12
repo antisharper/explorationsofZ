@@ -54,13 +54,7 @@
         .add-button {
             background-color: blue;
         }
-        
-        .reconfigure-button {
-            background-color: wheat;
-            /* width: 100%; */
-            text-align: right;
-        }
-        
+
         .delete-button {
             background-color: red;
         }
@@ -69,25 +63,54 @@
             background-color: grey;
         }
         
-        /* .datetime {
-            background-color: grey;
-            width: 100%;
-            text-align: center;
-        } */
-
-        .topline {
-          display: flex; 
-          justify-content: space-between;
-        }
-
         .red-box {
             background-color: red;
             color: white;
             font-weight: bold;
             padding: 20px;
         }
-    </style>
 
+        .topnav {
+          overflow: hidden;
+          background-color: #333;
+        }
+
+        .topnav a {
+          float: left;
+          color: #f2f2f2;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-size: 17px;
+        }
+
+        .topnav a:hover {
+          background-color: #ddd;
+          color: black;
+        }
+
+        .topnav a.active {
+          background-color: #04AA6D;
+          color: white;
+        }
+
+        .belowbar {
+          overflow: hidden;
+          background-color: #888;
+          display: inline-block;
+          vertical-align: middle;
+        }
+        
+        .reconfigure-button {
+            background-color: wheat;
+            color: black;
+            float: right;
+        }
+
+        .datetime {
+             float: left;
+        }
+    </style>
 <script>
     $(document).ready(function() {
         $('#defined-uplinks-table').DataTable({
@@ -103,8 +126,6 @@
         });
 
         $('.reconfigure-button').on('click', function() {
-            var button = $(this);
-
             $.get('/reconfigure', function() {
                 location.reload();
             });
@@ -171,16 +192,26 @@
 
 </head>
 <body>
-    <div class="topline"><a href="/index.html">Back to Status</a> <div id="datetime">timestamp</div><button class="reconfigure-button">Force Uplink Reconfiguration</button> </div>
-    <hr>
+  <div class="topnav">
+    <a href="/index.html">Status</a>
+    <a class="active" href="/change_uplink">Change Uplink</a>
+    <a href="/change_network_name">Reset AP Name</a>
+    <a href="/change_ap_password">Reset AP Password</a>
+    <a href="/restart_ssh">Restart SSH</a>
+    <a href="/stop_openvpn">Stop OpenVPN</a>
+    <a href="/restart_openvpn">Restart OpenVPN</a>
+    <a href="/reboot_router">Reboot</a>
+  </div>
+  <div id="belowbar">
+  	<label id="datetime">timestamp</label>
+    <button class="reconfigure-button">Force Uplink Reconfiguration</button>
+  </div>
 
-    {% if currentuplink == "" %} 
-        <div class="red-box">
-        <p>{{ message }}</p>
-            <p>UPLINK disconnected: Please wait 60 seconds for network connection or press "RECONFIGURE" button.</p>
-       </div>
-	<hr>
-   {% endif %}
+  {% if currentuplink == "" %} 
+  <div class="red-box">
+    <p>UPLINK disconnected: Please wait 60 seconds for network connection or press "RECONFIGURE" button.</p>
+  </div>
+  {% endif %}
 
    <h1>Defined Uplinks</h1>
     <table id="defined-uplinks-table">
