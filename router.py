@@ -316,7 +316,7 @@ def reboot_router():
         reboot_output = str(e)
 
     print("Raw reboot_output:",reboot_output)
-    return redirect(url_for('index.html'))
+    return redirect(url_for('index'))
     
 @app.route('/stop_openvpn', methods=['GET'])
 def stop_openvpn():
@@ -330,7 +330,7 @@ def stop_openvpn():
         stop_openvpn_output = str(e)
 
     print("Raw stop_openvpn_output:",stop_openvpn_output)
-    return redirect(url_for('index.html'))
+    return redirect(url_for('index'))
 
 @app.route('/restart_openvpn', methods=['GET'])
 def restart_openvpn():
@@ -344,7 +344,7 @@ def restart_openvpn():
         restart_openvpn_output = str(e)
 
     print("Raw restart_openvpn_output:",restart_openvpn_output)
-    return redirect(url_for('index.html'))
+    return redirect(url_for('index'))
 
 @app.route('/create_uplink', methods=['POST'])
 def create_uplink():
