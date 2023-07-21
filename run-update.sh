@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PORT=2222
-WAITTIME=120
+WAITTIME=45
 RUNASUSER=pi
 
 while getopts "p:w:u:r:" opt; do

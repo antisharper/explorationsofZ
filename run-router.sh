@@ -25,9 +25,10 @@ sleep 60
 cd /home/pi
 while (true); do
 
-  WLAN0IP=$(ifconfig wlan0 | grep inet | awk '{print $2}' | head -1):8443
+  #WLAN0IP=$(ifconfig wlan0 | grep inet | awk '{print $2}' | head -1):8443
+  WLAN0IP=0.0.0.0:8443
   echo $(date +%Y%m%d-%H%M%S) "Starting Router.py on $WLAN0IP"
-    python3 router.py --bindaddrport $WLAN0IP
+    python3 router.py --bindaddrport $WLAN0IP --debug
 
 
   sleep $WAITTIME
