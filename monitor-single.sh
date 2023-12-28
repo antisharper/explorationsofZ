@@ -40,6 +40,11 @@ function connectstatus () {
 	netstat -tn | grep -E \(Address\|ESTAB\|CLOSE\|LISTEN\)
 }
 
+function netstat-nat() {
+        echo "Proto   NATed Address     Destination Address      State "
+        sudo conntrack -L -n 2>/dev/null | perl -nE '{chomp;if( $_ =~/(\w+) .* (\w+) src=(\d+.\d+.\d+.\d+) .* sport=(\d+) .* src=(\d+.\d+.\d+.\d+) .* sport=(\d+)/){print("$1 $3:$4 $5:$6 $2\n");}}'
+}
+
 function ipmasqstatus () {
 	netstat-nat -n > /dev/shm/netstat-nat.out 
 (	head -1 /dev/shm/netstat-nat.out
@@ -98,6 +103,10 @@ case "${1:-all}" in
   						linebreak
   						openvpnstatus
            		;;
+  connect|c*)	header
+  						linebreak
+  						connectstatus
+           		;;
   devices|d*)	header
   						linebreak
   						networkstatus
@@ -106,6 +115,7 @@ case "${1:-all}" in
 cat <<EOF
 Router Monitor
  Options:
+    --connect|-c connect status
     --nat|-n Active Nat connections
     --iptables|-i iptable rules for Forward/Input/Ouptu and -t nat Masquerade
     --route|-r Route Table

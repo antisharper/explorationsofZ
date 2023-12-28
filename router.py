@@ -2,11 +2,27 @@
 import subprocess
 import socket
 import operator
-import datetime
+from datetime import datetime, date, timedelta
 import re
 import sys
 import argparse
-from flask import Flask, render_template, request, redirect, url_for
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, Response
+
+# Build Cache Control Decorator
+def docache(seconds=300, content_type='application/json; charset=utf-8'):
+    """ Flask decorator that allow to set Expire and Cache headers. """
+    def fwrap(f):
+        @wraps(f)
+        def wrapped_f(*args, **kwargs):
+            r = f(*args, **kwargs)
+            then = datetime.now() + timedelta(seconds=seconds)
+            rsp = Response(r, content_type=content_type)
+            rsp.headers.add('Expires', then.strftime("%a, %d %b %Y %H:%M:%S GMT"))
+            rsp.headers.add('Cache-Control', 'public,max-age=%d' % seconds )
+            return rsp
+        return wrapped_f
+    return fwrap
 
 # Install
 # apt install -y python3-flask python3-openssl
@@ -145,6 +161,7 @@ def save_wpasupplicant(filename, defined_uplinks, force_wpacli=True):
 
 @app.route('/')
 @app.route('/index.html')
+@docache(seconds=45, content_type='application/html')
 def index():
     # Execute the tail and sed commands and capture the output
     hostname = socket.gethostname()
@@ -379,8 +396,26 @@ def create_uplink():
 @app.route('/apple-touch-icon.png')
 @app.route('/favicon-16x16.png')
 @app.route('/favicon-32x32.png')
+@docache(seconds=900, content_type='image/png')
+def statics_png():
+    return render_template(request.path)
+
+@app.route('/route_change_uplink.css')
+@app.route('/route_top.css')
+@app.route('/route_index.css')
+@docache(seconds=900, content_type='text/css')
+def statics_css():
+    return render_template(request.path)
+
 @app.route('/site.webmanifest')
-def statics():
+@docache(seconds=900, content_type='application/manifest')
+def statics_manifest():
+    return render_template(request.path)
+
+@app.route('/route_change_uplink.js')
+@app.route('/route_top.js')
+@docache(seconds=300, content_type='text/javascript')
+def statics_js():
     return render_template(request.path)
 
 if __name__ == '__main__':

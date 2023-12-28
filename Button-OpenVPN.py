@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import gpiozero  # We are using GPIO pins
 import subprocess
 import os
@@ -6,15 +7,17 @@ from time import sleep
 checkFile="/dev/shm/no-openvpn"
 channel = 21
 button = gpiozero.Button(channel)
+lastButton = False
 toggle = False
-togglerereaddelay=1
-cycledelay=.25
+togglerereaddelay = 1
+cycledelay = .25
+
 # Toggle False = Allow Openvpn (Remove /dev/shm/no-openvpn)
 # Toggle True = Stop Openvpn (Create /dev/shm/no-openvpn * kill openvpn --config processes)
 
 while True:
   if button.is_pressed:
-    if  lastButton == False:
+    if lastButton == False:
       lastButton = True
       toggle = not toggle
       print("Flip Toggle to " + str(toggle))
@@ -29,4 +32,5 @@ while True:
         sleep(togglerereaddelay)
   else:
     lastButton = False
+  # print("Cycle and Sleep")
   sleep(cycledelay)
