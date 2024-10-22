@@ -11,6 +11,7 @@ nohup /home/pi/run-update.sh -r ${DEFAULTUSER} -p ${UPDATEPORT} -u "${UPDATEACCO
 nohup /home/pi/run-Button-OpenVPN.sh &>/dev/shm/run-button-openvpn.out &
 nohup /home/pi/run-recycle.sh -c "${CHECKURL}" &>/dev/shm/run-recycle.out &
 nohup /home/pi/run-reroute.sh &>/dev/shm/run-reroute.out &
-echo 0 | tee /sys/class/leds/led0/brightness
+nohup /home/pi/run-router.sh &>/dev/shm/run-router.out &
+if [ -e /sys/class/leds/led0/brightness ]; then echo 0 | tee /sys/class/leds/led0/brightness; fi
 
 

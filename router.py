@@ -2,27 +2,11 @@
 import subprocess
 import socket
 import operator
-from datetime import datetime, date, timedelta
+import datetime
 import re
 import sys
 import argparse
-from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, Response
-
-# Build Cache Control Decorator
-def docache(seconds=300, content_type='application/json; charset=utf-8'):
-    """ Flask decorator that allow to set Expire and Cache headers. """
-    def fwrap(f):
-        @wraps(f)
-        def wrapped_f(*args, **kwargs):
-            r = f(*args, **kwargs)
-            then = datetime.now() + timedelta(seconds=seconds)
-            rsp = Response(r, content_type=content_type)
-            rsp.headers.add('Expires', then.strftime("%a, %d %b %Y %H:%M:%S GMT"))
-            rsp.headers.add('Cache-Control', 'public,max-age=%d' % seconds )
-            return rsp
-        return wrapped_f
-    return fwrap
+from flask import Flask, render_template, request, redirect, url_for
 
 # Install
 # apt install -y python3-flask python3-openssl
@@ -161,12 +145,11 @@ def save_wpasupplicant(filename, defined_uplinks, force_wpacli=True):
 
 @app.route('/')
 @app.route('/index.html')
-@docache(seconds=45, content_type='application/html')
 def index():
     # Execute the tail and sed commands and capture the output
-    hostname = socket.gethostname()
-    status_command_str = 'tail -150 /dev/shm/log-monitor.out | sed "/'+ hostname +'/,\$!d"'
+    status_command_str = 'sed /tput/h\;//\!H\;\$\!d\;x /dev/shm/log-monitor.out | grep -v tput'
     # print("status_command_str:",status_command_str)
+    hostname = socket.gethostname()
 
     try:
         status_output = subprocess.check_output(status_command_str, shell=True, encoding='utf-8')
@@ -176,11 +159,11 @@ def index():
 
     # print("Raw Status_output:",status_output)
 
-    status_output = re.sub(r'^\*', '</pre><br /><pre>', status_output, flags=re.MULTILINE)
+    status_output = '<pre>' + status_output
     status_output += "</pre>"
     # print("Cooked Status_output:",status_output)
 
-    return render_template('router_index.html', status_output=status_output)
+    return render_template('router_index.html', hostname=hostname, status_output=status_output)
 
 @app.route('/change_uplink')
 def change_uplink():
@@ -234,6 +217,8 @@ def change_uplink():
                 bitrate = int(bitrate*1000)
             elif bitrate.endswith(' Mb/s'):
                 bitrate = float(bitrate.split(' ',1)[0])
+            elif bitrate.endswith(' kb/s'):
+                bitrate = .001
             wifi['BITRATE'] = int(bitrate)
 
     # Sort found_wifi by Network (ascending) and wifi_name (descending)
@@ -261,7 +246,7 @@ def change_uplink():
 
     found_wifi = unique_wifi
 
-    return render_template('router_change_uplink.html', currentuplink=currentuplink, localap=localap[0], found_wifi=found_wifi, defined_uplinks=defined_uplinks)
+    return render_template('router_change_uplink.html', currentuplink=currentuplink, localap=localap[0], found_wifi=found_wifi, defined_uplinks=defined_uplinks,hostname=socket.gethostname())
 
 @app.route('/toggle_uplink')
 def toggle_uplink():
@@ -396,26 +381,8 @@ def create_uplink():
 @app.route('/apple-touch-icon.png')
 @app.route('/favicon-16x16.png')
 @app.route('/favicon-32x32.png')
-@docache(seconds=900, content_type='image/png')
-def statics_png():
-    return render_template(request.path)
-
-@app.route('/route_change_uplink.css')
-@app.route('/route_top.css')
-@app.route('/route_index.css')
-@docache(seconds=900, content_type='text/css')
-def statics_css():
-    return render_template(request.path)
-
 @app.route('/site.webmanifest')
-@docache(seconds=900, content_type='application/manifest')
-def statics_manifest():
-    return render_template(request.path)
-
-@app.route('/route_change_uplink.js')
-@app.route('/route_top.js')
-@docache(seconds=300, content_type='text/javascript')
-def statics_js():
+def statics():
     return render_template(request.path)
 
 if __name__ == '__main__':

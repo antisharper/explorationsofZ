@@ -86,7 +86,7 @@ while (true); do
 
    echo `date` Get NetHogs Sample CNT:$COUNT
    sudo nethogs -t -d $HOGSDELAY -c $[HOGSSAMPLES+1] 2>/dev/null | grep -- - | sed '/0\x090\x2e0/d;s/-/\t/g;s/:[0-9\/]*//g' | awk '$4 > '$ERASEBWLIMIT > $HOGSFILE 
-   if [ ! -z "$DEBUG" ]; then awk '{printf("\t\t\t\t\t%s\n",$0)}' $HOGSFILE; fi
+   if [ ! -z "$DEBUG" ]; then printf "\t\t\t\t\t%15.15s %15.15s %4.4s %7.7s\n" src dest \?\? "BW KBPS"; awk '{printf("\t\t\t\t\t%s\n",$0)}' $HOGSFILE; fi
 
    if [ ! -s $HOGSFILE ]; then (( COUNT = COUNT + 1 )); fi
 

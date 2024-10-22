@@ -48,7 +48,7 @@ export RUNUPDATE=${DEFAULTPATH}/run-update.sh
 
 export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget conntrack tcpdump nmap nethogs git iptables traceroute)
 # If you need to compile drivers
-# export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc build-essential libssl-dev bison flex libncurses5-dev iptables traceroute)
+# export ADDPACKAGELIST=(openvpn hostapd dnsmasq curl wget netstat-nat tcpdump nmap python-gpiozero nethogs git dkms bc build-essential libssl-dev bison flex libncurses5-dev iptables traceroute python3-flask)
 
 export CHECKURL=https://api.ipify.org
 
